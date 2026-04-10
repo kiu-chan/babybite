@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/app_colors.dart';
-import 'food_tracker_screen.dart';
+import 'order/food_tracker_screen.dart';
 
 // Colors specific to this page
 const _kPrimary = Color(0xFF7EB8E8);

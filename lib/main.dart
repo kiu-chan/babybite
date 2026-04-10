@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'core/app_colors.dart';
+import 'screens/splash_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/menu_screen.dart';
 import 'screens/orders_page.dart';
@@ -22,7 +23,10 @@ class BabyBiteApp extends StatelessWidget {
         textTheme: GoogleFonts.quicksandTextTheme(),
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.blueAccent),
       ),
-      home: const RootScreen(),
+      home: const SplashScreen(),
+      routes: {
+        '/home': (_) => const RootScreen(),
+      },
     );
   }
 }
@@ -58,4 +62,3 @@ class _RootScreenState extends State<RootScreen> {
     );
   }
 }
-

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../core/app_colors.dart';
 
 class MealDetailScreen extends StatefulWidget {
   const MealDetailScreen({super.key});
@@ -11,7 +10,6 @@ class MealDetailScreen extends StatefulWidget {
 
 class _MealDetailScreenState extends State<MealDetailScreen> {
   int _quantity = 1;
-  final double _pricePerItem = 5.00;
 
   @override
   Widget build(BuildContext context) {
@@ -653,31 +651,4 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
       ),
     );
   }
-}
-
-// ============================================================
-// RAINBOW / ARCH PAINTER
-// ============================================================
-class _RainbowPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height + 30);
-
-    final radii = [
-      (radius: size.width * 0.48, color: const Color(0xFFB8D9F5).withValues(alpha: .35)),
-      (radius: size.width * 0.38, color: const Color(0xFFCBE6FA).withValues(alpha: .4)),
-      (radius: size.width * 0.28, color: const Color(0xFFDCEFF9).withValues(alpha: .5)),
-    ];
-
-    for (final r in radii) {
-      final paint = Paint()
-        ..color = r.color
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 24;
-      canvas.drawCircle(center, r.radius, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
