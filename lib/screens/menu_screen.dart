@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/app_colors.dart';
+import 'meal_detail_screen.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -265,106 +266,133 @@ class _MenuScreenState extends State<MenuScreen> {
   }
 
   // ============================================================
-  // MEAL CARD
+  // MEAL CARD — bấm vào để vào MealDetailScreen
   // ============================================================
   Widget _buildMealCard() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.cardBorder),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.blueSoft.withValues(alpha: .2),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const MealDetailScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(1.0, 0.0),
+                  end: Offset.zero,
+                ).animate(CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOutCubic,
+                )),
+                child: child,
+              );
+            },
+            transitionDuration: const Duration(milliseconds: 350),
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            child: Image.asset(
-              'assets/img/menu_card.png',
-              width: double.infinity,
-              height: 180,
-              fit: BoxFit.cover,
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppColors.cardBorder),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.blueSoft.withValues(alpha: .2),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Mashed Sweet Potato\n& Carrot',
-                        style: GoogleFonts.fredoka(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.blueDeep,
-                          height: 1.25,
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              child: Image.asset(
+                'assets/img/menu_card.png',
+                width: double.infinity,
+                height: 180,
+                fit: BoxFit.cover,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Mashed Sweet Potato\n& Carrot',
+                          style: GoogleFonts.fredoka(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.blueDeep,
+                            height: 1.25,
+                          ),
                         ),
                       ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE6F0FB),
-                        borderRadius: BorderRadius.circular(999),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE6F0FB),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          '8m+',
+                          style: GoogleFonts.quicksand(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.blueMid,
+                          ),
+                        ),
                       ),
-                      child: Text(
-                        '8m+',
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      const Icon(Icons.local_fire_department_rounded,
+                          size: 16, color: Color(0xFFF5B638)),
+                      const SizedBox(width: 6),
+                      Text(
+                        '20 min | Stage 2',
                         style: GoogleFonts.quicksand(
-                          fontSize: 12,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF7A9BBF),
+                        ),
+                      ),
+                      const Spacer(),
+                      ...List.generate(
+                        4,
+                        (_) => const Icon(Icons.star_rounded,
+                            size: 15, color: AppColors.star),
+                      ),
+                      const Icon(Icons.star_rounded,
+                          size: 15, color: Color(0xFFDDE6F0)),
+                      const SizedBox(width: 4),
+                      Text(
+                        '12',
+                        style: GoogleFonts.quicksand(
+                          fontSize: 13,
                           fontWeight: FontWeight.w700,
                           color: AppColors.blueMid,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    const Icon(Icons.local_fire_department_rounded,
-                        size: 16, color: Color(0xFFF5B638)),
-                    const SizedBox(width: 6),
-                    Text(
-                      '20 min | Stage 2',
-                      style: GoogleFonts.quicksand(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF7A9BBF),
-                      ),
-                    ),
-                    const Spacer(),
-                    ...List.generate(
-                      4,
-                      (_) => const Icon(Icons.star_rounded, size: 15, color: AppColors.star),
-                    ),
-                    const Icon(Icons.star_rounded, size: 15, color: Color(0xFFDDE6F0)),
-                    const SizedBox(width: 4),
-                    Text(
-                      '12',
-                      style: GoogleFonts.quicksand(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.blueMid,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

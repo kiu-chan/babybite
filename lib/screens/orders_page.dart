@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/app_colors.dart';
+import 'food_tracker_screen.dart';
 
 // Colors specific to this page
 const _kPrimary = Color(0xFF7EB8E8);
@@ -36,7 +37,7 @@ class OrdersPage extends StatelessWidget {
                   const SizedBox(height: 16),
                   _buildSummaryCard(),
                   const SizedBox(height: 20),
-                  _buildOrderButton(),
+                  _buildOrderButton(context),
                   const SizedBox(height: 20),
                   _buildAddressCard(),
                   const SizedBox(height: 20),
@@ -333,39 +334,63 @@ class OrdersPage extends StatelessWidget {
   }
 
   // ---------- ORDER BUTTON ----------
-  Widget _buildOrderButton() {
-    return Container(
-      width: double.infinity,
-      height: 58,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF9BC8EE), Color(0xFF6BA4DB)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: _kPrimary.withValues(alpha: .4),
-            blurRadius: 15,
-            offset: const Offset(0, 6),
+  Widget _buildOrderButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const FoodTrackerScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(1.0, 0.0),
+                  end: Offset.zero,
+                ).animate(CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOutCubic,
+                )),
+                child: child,
+              );
+            },
+            transitionDuration: const Duration(milliseconds: 350),
           ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.shopping_bag_rounded, color: Colors.white, size: 22),
-          const SizedBox(width: 10),
-          Text(
-            'Place Order',
-            style: GoogleFonts.quicksand(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        height: 58,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF9BC8EE), Color(0xFF6BA4DB)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: _kPrimary.withValues(alpha: .4),
+              blurRadius: 15,
+              offset: const Offset(0, 6),
             ),
-          ),
-        ],
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.shopping_bag_rounded, color: Colors.white, size: 22),
+            const SizedBox(width: 10),
+            Text(
+              'Place Order',
+              style: GoogleFonts.quicksand(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
