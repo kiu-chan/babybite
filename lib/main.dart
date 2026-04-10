@@ -1,20 +1,61 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'core/app_colors.dart';
+import 'screens/home_screen.dart';
+import 'screens/menu_screen.dart';
+import 'screens/orders_page.dart';
+import 'screens/profile_screen.dart';
+import 'widgets/bottom_nav.dart';
 
-void main() {
-  runApp(const MainApp());
-}
+void main() => runApp(const BabyBiteApp());
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+class BabyBiteApp extends StatelessWidget {
+  const BabyBiteApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
+    return MaterialApp(
+      title: 'BabyBite',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white,
+        textTheme: GoogleFonts.quicksandTextTheme(),
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.blueAccent),
+      ),
+      home: const RootScreen(),
+    );
+  }
+}
+
+// ============================================================
+// ROOT - holds bottom nav + page switching
+// ============================================================
+class RootScreen extends StatefulWidget {
+  const RootScreen({super.key});
+
+  @override
+  State<RootScreen> createState() => _RootScreenState();
+}
+
+class _RootScreenState extends State<RootScreen> {
+  int _currentIndex = 0;
+
+  final _pages = const [
+    HomeScreen(),
+    MenuScreen(),
+    OrdersPage(),
+    ProfileScreen(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(bottom: false, child: _pages[_currentIndex]),
+      bottomNavigationBar: BottomNav(
+        currentIndex: _currentIndex,
+        onTap: (i) => setState(() => _currentIndex = i),
       ),
     );
   }
 }
+

@@ -7,9 +7,11 @@ environment:
   sdk: ^3.11.1
 
 dependencies:
+  cupertino_icons: ^1.0.9
   flutter:
     sdk: flutter
   flutter_launcher_icons: ^0.14.4
+  google_fonts: ^8.0.2
 
 flutter_icons:
   android: true
@@ -24,6 +26,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-assets:
-  - assets/icon/
-  - .env
+  assets:
+    - assets/icon/
+    - assets/img/
