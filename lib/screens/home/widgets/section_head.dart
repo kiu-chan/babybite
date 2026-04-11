@@ -22,8 +22,10 @@ class _SectionHeadState extends State<SectionHead> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (_) => StatefulBuilder(
-        builder: (ctx, setModalState) => Padding(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
+        builder: (ctx, setModalState) => SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,6 +87,7 @@ class _SectionHeadState extends State<SectionHead> {
                 }).toList(),
               ),
             ],
+          ),
           ),
         ),
       ),

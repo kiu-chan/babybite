@@ -30,39 +30,42 @@ class HeroHeader extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) => Padding(
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _pill(),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Text(
-                  'Notifications',
-                  style: GoogleFonts.fredoka(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.blueDeep,
+      builder: (_) => SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _pill(),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Text(
+                    'Notifications',
+                    style: GoogleFonts.fredoka(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.blueDeep,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            const Icon(Icons.notifications_none_rounded,
-                size: 48, color: AppColors.blueSoft),
-            const SizedBox(height: 12),
-            Text(
-              'No new notifications',
-              style: GoogleFonts.quicksand(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-                color: AppColors.blueMid,
+                ],
               ),
-            ),
-            const SizedBox(height: 8),
-          ],
+              const SizedBox(height: 24),
+              const Icon(Icons.notifications_none_rounded,
+                  size: 48, color: AppColors.blueSoft),
+              const SizedBox(height: 12),
+              Text(
+                'No new notifications',
+                style: GoogleFonts.quicksand(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.blueMid,
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
         ),
       ),
     );
@@ -127,25 +130,27 @@ class _ProfileSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      padding: EdgeInsets.fromLTRB(
-          24, 16, 24, MediaQuery.of(context).padding.bottom + 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _pill(),
-          const SizedBox(height: 20),
-          _userSection(context),
-          const SizedBox(height: 16),
-          const Divider(color: AppColors.cardBorder, height: 1),
-          const SizedBox(height: 16),
-          _babySection(),
-          const SizedBox(height: 4),
-        ],
+    return SafeArea(
+      top: false,
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _pill(),
+            const SizedBox(height: 20),
+            _userSection(context),
+            const SizedBox(height: 16),
+            const Divider(color: AppColors.cardBorder, height: 1),
+            const SizedBox(height: 16),
+            _babySection(),
+            const SizedBox(height: 4),
+          ],
+        ),
       ),
     );
   }

@@ -16,7 +16,6 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFEAF5FF),
       body: SafeArea(
-        bottom: false,
         child: SingleChildScrollView(
           child: Column(
             children: [

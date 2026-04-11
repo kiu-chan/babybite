@@ -17,13 +17,15 @@ class BottomNav extends StatelessWidget {
       (icon: Icons.person_rounded, label: 'Profile'),
     ];
 
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: AppColors.cardBorder)),
-      ),
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
-      child: Row(
+    return SafeArea(
+      top: false,
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          border: Border(top: BorderSide(color: AppColors.cardBorder)),
+        ),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+        child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: List.generate(items.length, (i) {
           final active = i == currentIndex;
@@ -55,6 +57,7 @@ class BottomNav extends StatelessWidget {
             ),
           );
         }),
+        ),
       ),
     );
   }
