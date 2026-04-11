@@ -23,8 +23,9 @@ class BabyBiteApp extends StatelessWidget {
         textTheme: GoogleFonts.quicksandTextTheme(),
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.blueAccent),
       ),
-      home: const SplashScreen(),
+      initialRoute: '/',
       routes: {
+        '/': (_) => const SplashScreen(),
         '/home': (_) => const RootScreen(),
       },
     );

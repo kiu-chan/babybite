@@ -1,75 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/app_colors.dart';
+import '../../profile/models/user_profile.dart';
+import '../../profile/models/baby_info.dart';
 
 class HeroHeader extends StatelessWidget {
-  const HeroHeader({super.key});
+  final UserProfile profile;
+  final BabyInfo baby;
+
+  const HeroHeader({
+    super.key,
+    required this.profile,
+    required this.baby,
+  });
 
   void _showMenu(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (_) => Padding(
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFDBEAF8),
-                  borderRadius: BorderRadius.circular(99),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'BabyBite',
-              style: GoogleFonts.fredoka(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-                color: AppColors.blueDeep,
-              ),
-            ),
-            const SizedBox(height: 16),
-            _menuItem(context, Icons.home_rounded, 'Home'),
-            _menuItem(context, Icons.restaurant_menu_rounded, 'Menu'),
-            _menuItem(context, Icons.receipt_long_rounded, 'Orders'),
-            _menuItem(context, Icons.person_rounded, 'Profile'),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _menuItem(BuildContext context, IconData icon, String label) {
-    return InkWell(
-      onTap: () => Navigator.pop(context),
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
-        child: Row(
-          children: [
-            Icon(icon, color: AppColors.blueAccent, size: 22),
-            const SizedBox(width: 16),
-            Text(
-              label,
-              style: GoogleFonts.quicksand(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppColors.blueDeep,
-              ),
-            ),
-          ],
-        ),
-      ),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => _ProfileSheet(profile: profile, baby: baby),
     );
   }
 
@@ -85,14 +35,7 @@ class HeroHeader extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: const Color(0xFFDBEAF8),
-                borderRadius: BorderRadius.circular(99),
-              ),
-            ),
+            _pill(),
             const SizedBox(height: 20),
             Row(
               children: [
@@ -107,7 +50,7 @@ class HeroHeader extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 24),
-            Icon(Icons.notifications_none_rounded,
+            const Icon(Icons.notifications_none_rounded,
                 size: 48, color: AppColors.blueSoft),
             const SizedBox(height: 12),
             Text(
@@ -176,6 +119,201 @@ class HeroHeader extends StatelessWidget {
   }
 }
 
+// ── Bottom sheet ──────────────────────────────────────────────
+class _ProfileSheet extends StatelessWidget {
+  final UserProfile profile;
+  final BabyInfo baby;
+  const _ProfileSheet({required this.profile, required this.baby});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      padding: EdgeInsets.fromLTRB(
+          24, 16, 24, MediaQuery.of(context).padding.bottom + 24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _pill(),
+          const SizedBox(height: 20),
+          _userSection(context),
+          const SizedBox(height: 16),
+          const Divider(color: AppColors.cardBorder, height: 1),
+          const SizedBox(height: 16),
+          _babySection(),
+          const SizedBox(height: 4),
+        ],
+      ),
+    );
+  }
+
+  Widget _userSection(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: const Color(0xFFD6EDFB),
+            border: Border.all(color: AppColors.cardBorder, width: 2),
+          ),
+          child: const Icon(Icons.face_rounded,
+              size: 34, color: AppColors.blueAccent),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                profile.name,
+                style: GoogleFonts.fredoka(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.blueDeep,
+                ),
+              ),
+              const SizedBox(height: 2),
+              _infoLine(Icons.email_outlined, profile.email),
+              const SizedBox(height: 2),
+              _infoLine(Icons.phone_outlined, profile.phone),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _infoLine(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, size: 13, color: AppColors.placeholder),
+        const SizedBox(width: 5),
+        Expanded(
+          child: Text(
+            text,
+            style: GoogleFonts.quicksand(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: AppColors.blueMid,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _babySection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0F8FF),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD6EDFB),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.child_care_rounded,
+                    size: 18, color: AppColors.blueAccent),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                'Baby Info',
+                style: GoogleFonts.fredoka(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.blueDeep,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(child: _babyChip(Icons.cake_rounded, baby.name)),
+              const SizedBox(width: 8),
+              Expanded(child: _babyChip(Icons.today_rounded, baby.age)),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: _babyChip(
+                  Icons.warning_amber_rounded,
+                  baby.allergies,
+                  valueColor: baby.allergies.toLowerCase() == 'none'
+                      ? const Color(0xFF7AC96A)
+                      : const Color(0xFFE57373),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                  child: _babyChip(
+                      Icons.monitor_weight_outlined, baby.weight)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _babyChip(IconData icon, String value, {Color? valueColor}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.cardBorder),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 14, color: AppColors.blueSoft),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              value,
+              style: GoogleFonts.quicksand(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: valueColor ?? AppColors.blueDeep,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+Widget _pill() => Center(
+      child: Container(
+        width: 40,
+        height: 4,
+        decoration: BoxDecoration(
+          color: const Color(0xFFDBEAF8),
+          borderRadius: BorderRadius.circular(99),
+        ),
+      ),
+    );
+
+// ── Icon button ───────────────────────────────────────────────
 class _IconButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
