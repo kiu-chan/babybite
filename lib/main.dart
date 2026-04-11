@@ -5,7 +5,7 @@ import 'screens/splash_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/menu/menu_screen.dart';
 import 'screens/order/orders_page.dart';
-import 'screens/profile_screen.dart';
+import 'screens/profile/profile_screen.dart';
 import 'widgets/bottom_nav.dart';
 
 void main() => runApp(const BabyBiteApp());

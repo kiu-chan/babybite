@@ -9,8 +9,8 @@ class FoodTrackerScreen extends StatefulWidget {
 }
 
 class _FoodTrackerScreenState extends State<FoodTrackerScreen> {
-  String _selectedDate = 'Monday, April 22';
-  double _nutritionProgress = 0.72;
+  final String _selectedDate = 'Monday, April 22';
+  final double _nutritionProgress = 0.72;
 
   @override
   Widget build(BuildContext context) {
