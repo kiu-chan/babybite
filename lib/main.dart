@@ -4,7 +4,7 @@ import 'core/app_colors.dart';
 import 'screens/splash_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/menu/menu_screen.dart';
-import 'screens/orders_page.dart';
+import 'screens/order/orders_page.dart';
 import 'screens/profile_screen.dart';
 import 'widgets/bottom_nav.dart';
 
