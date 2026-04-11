@@ -382,7 +382,7 @@ class _SplashScreenState extends State<SplashScreen>
                 size: 13, color: AppColors.blueMid.withValues(alpha: .70)),
             const SizedBox(width: 6),
             Text(
-              'Dinh dưỡng yêu thương cho bé',
+              'Nutritious meals made with love',
               style: GoogleFonts.quicksand(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,

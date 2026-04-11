@@ -141,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
             Icon(Icons.eco_rounded, size: 14, color: AppColors.blueMid),
             const SizedBox(width: 5),
             Text(
-              'Dinh dưỡng yêu thương cho bé',
+              'Nutritious meals made with love',
               style: GoogleFonts.quicksand(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -193,7 +193,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
 
             Text(
-              'Đăng nhập',
+              'Sign In',
               style: GoogleFonts.fredoka(
                 fontSize: 28,
                 fontWeight: FontWeight.w700,
@@ -202,7 +202,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 4),
             Text(
-              'Chào mừng trở lại! Bé đang đợi bạn',
+              'Welcome back! Your little one is waiting',
               style: GoogleFonts.quicksand(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -222,15 +222,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     icon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
                     validator: (v) {
-                      if (v == null || v.trim().isEmpty) return 'Vui lòng nhập email';
-                      if (!v.contains('@')) return 'Email không hợp lệ';
+                      if (v == null || v.trim().isEmpty) return 'Please enter your email';
+                      if (!v.contains('@')) return 'Invalid email address';
                       return null;
                     },
                   ),
                   const SizedBox(height: 16),
                   AuthTextField(
                     controller: _passwordCtrl,
-                    label: 'Mật khẩu',
+                    label: 'Password',
                     hint: '••••••••',
                     icon: Icons.lock_outline_rounded,
                     obscureText: _obscurePassword,
@@ -246,8 +246,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           setState(() => _obscurePassword = !_obscurePassword),
                     ),
                     validator: (v) {
-                      if (v == null || v.isEmpty) return 'Vui lòng nhập mật khẩu';
-                      if (v.length < 6) return 'Mật khẩu tối thiểu 6 ký tự';
+                      if (v == null || v.isEmpty) return 'Please enter your password';
+                      if (v.length < 6) return 'Password must be at least 6 characters';
                       return null;
                     },
                   ),
@@ -261,7 +261,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: GestureDetector(
                 onTap: () {},
                 child: Text(
-                  'Quên mật khẩu?',
+                  'Forgot password?',
                   style: GoogleFonts.quicksand(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -273,7 +273,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
             const SizedBox(height: 24),
             _AuthPrimaryButton(
-              label: 'Đăng nhập',
+              label: 'Sign In',
               isLoading: _isLoading,
               onTap: _onLogin,
             ),
@@ -283,7 +283,7 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(height: 20),
 
             AuthSocialButton(
-              label: 'Tiếp tục với Google',
+              label: 'Continue with Google',
               icon: Icons.g_mobiledata_rounded,
               onTap: () {},
             ),
@@ -293,7 +293,7 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Chưa có tài khoản? ',
+                  "Don't have an account? ",
                   style: GoogleFonts.quicksand(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -305,7 +305,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     MaterialPageRoute(builder: (_) => const RegisterScreen()),
                   ),
                   child: Text(
-                    'Đăng ký ngay',
+                    'Sign Up',
                     style: GoogleFonts.quicksand(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -328,7 +328,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Text(
-            'hoặc tiếp tục với',
+            'or continue with',
             style: GoogleFonts.quicksand(
               fontSize: 12,
               fontWeight: FontWeight.w600,

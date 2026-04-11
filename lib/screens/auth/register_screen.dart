@@ -36,7 +36,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Vui lòng đồng ý với Điều khoản dịch vụ',
+            'Please agree to the Terms of Service',
             style: GoogleFonts.quicksand(fontWeight: FontWeight.w600),
           ),
           backgroundColor: AppColors.blueMid,
@@ -213,7 +213,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Tạo tài khoản',
+                        'Create Account',
                         style: GoogleFonts.fredoka(
                           fontSize: 28,
                           fontWeight: FontWeight.w700,
@@ -222,7 +222,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Hành trình dinh dưỡng bắt đầu từ đây',
+                        'Your nutrition journey starts here',
                         style: GoogleFonts.quicksand(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
@@ -245,7 +245,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           size: 13, color: AppColors.blueMid),
                       const SizedBox(width: 4),
                       Text(
-                        'Miễn phí',
+                        'Free',
                         style: GoogleFonts.quicksand(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
@@ -268,11 +268,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 children: [
                   AuthTextField(
                     controller: _nameCtrl,
-                    label: 'Họ và tên',
-                    hint: 'Nguyễn Văn A',
+                    label: 'Full Name',
+                    hint: 'John Doe',
                     icon: Icons.person_outline_rounded,
                     validator: (v) {
-                      if (v == null || v.trim().isEmpty) return 'Vui lòng nhập họ tên';
+                      if (v == null || v.trim().isEmpty) return 'Please enter your name';
                       return null;
                     },
                   ),
@@ -284,15 +284,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     icon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
                     validator: (v) {
-                      if (v == null || v.trim().isEmpty) return 'Vui lòng nhập email';
-                      if (!v.contains('@')) return 'Email không hợp lệ';
+                      if (v == null || v.trim().isEmpty) return 'Please enter your email';
+                      if (!v.contains('@')) return 'Invalid email address';
                       return null;
                     },
                   ),
                   const SizedBox(height: 14),
                   AuthTextField(
                     controller: _passwordCtrl,
-                    label: 'Mật khẩu',
+                      label: 'Password',
                     hint: '••••••••',
                     icon: Icons.lock_outline_rounded,
                     obscureText: _obscurePassword,
@@ -308,15 +308,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           setState(() => _obscurePassword = !_obscurePassword),
                     ),
                     validator: (v) {
-                      if (v == null || v.isEmpty) return 'Vui lòng nhập mật khẩu';
-                      if (v.length < 6) return 'Mật khẩu tối thiểu 6 ký tự';
+                      if (v == null || v.isEmpty) return 'Please enter your password';
+                      if (v.length < 6) return 'Password must be at least 6 characters';
                       return null;
                     },
                   ),
                   const SizedBox(height: 14),
                   AuthTextField(
                     controller: _confirmCtrl,
-                    label: 'Xác nhận mật khẩu',
+                    label: 'Confirm Password',
                     hint: '••••••••',
                     icon: Icons.lock_outline_rounded,
                     obscureText: _obscureConfirm,
@@ -332,8 +332,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           setState(() => _obscureConfirm = !_obscureConfirm),
                     ),
                     validator: (v) {
-                      if (v == null || v.isEmpty) return 'Vui lòng xác nhận mật khẩu';
-                      if (v != _passwordCtrl.text) return 'Mật khẩu không khớp';
+                      if (v == null || v.isEmpty) return 'Please confirm your password';
+                      if (v != _passwordCtrl.text) return 'Passwords do not match';
                       return null;
                     },
                   ),
@@ -350,7 +350,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             const SizedBox(height: 18),
 
             AuthSocialButton(
-              label: 'Tiếp tục với Google',
+              label: 'Continue with Google',
               icon: Icons.g_mobiledata_rounded,
               onTap: () {},
             ),
@@ -360,7 +360,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Đã có tài khoản? ',
+                  'Already have an account? ',
                   style: GoogleFonts.quicksand(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -370,7 +370,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 GestureDetector(
                   onTap: () => Navigator.of(context).pop(),
                   child: Text(
-                    'Đăng nhập',
+                    'Sign In',
                     style: GoogleFonts.quicksand(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -387,7 +387,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _buildStepIndicator() {
-    final steps = ['Thông tin', 'Mật khẩu', 'Hoàn tất'];
+    final steps = ['Details', 'Password', 'Done'];
     return Row(
       children: List.generate(steps.length, (i) {
         final active = i == 0;
@@ -462,18 +462,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     color: AppColors.placeholder,
                   ),
                   children: [
-                    const TextSpan(text: 'Tôi đồng ý với '),
+                    const TextSpan(text: 'I agree to the '),
                     TextSpan(
-                      text: 'Điều khoản dịch vụ',
+                      text: 'Terms of Service',
                       style: GoogleFonts.quicksand(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: AppColors.blueAccent,
                       ),
                     ),
-                    const TextSpan(text: ' và '),
+                    const TextSpan(text: ' and '),
                     TextSpan(
-                      text: 'Chính sách bảo mật',
+                      text: 'Privacy Policy',
                       style: GoogleFonts.quicksand(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -523,7 +523,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
                 )
               : Text(
-                  'Tạo tài khoản',
+                  'Create Account',
                   style: GoogleFonts.fredoka(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
@@ -543,7 +543,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Text(
-            'hoặc tiếp tục với',
+            'or continue with',
             style: GoogleFonts.quicksand(
               fontSize: 12,
               fontWeight: FontWeight.w600,
