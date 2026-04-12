@@ -345,6 +345,15 @@ Open **Xcode** → open `ios/Runner.xcworkspace` → select the **Runner** targe
 
 ---
 
+## Contact
+
+If you need support or have any questions, feel free to reach out:
+
+- **Email:** [khanhk66uet@gmail.com](mailto:khanhk66uet@gmail.com)
+- **WhatsApp:** [+84 974 022 602](https://wa.me/84974022602)
+
+---
+
 ## Project Structure
 
 ```
