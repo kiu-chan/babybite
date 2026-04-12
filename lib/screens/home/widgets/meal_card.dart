@@ -6,8 +6,13 @@ import '../../menu/meal_detail_screen.dart';
 
 class RecommendedMealsList extends StatelessWidget {
   final List<Meal> meals;
+  final String emptyMessage;
 
-  const RecommendedMealsList({super.key, required this.meals});
+  const RecommendedMealsList({
+    super.key,
+    required this.meals,
+    this.emptyMessage = 'No meals for this age yet',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +33,7 @@ class RecommendedMealsList extends StatelessWidget {
                     size: 36, color: AppColors.placeholder),
                 const SizedBox(height: 10),
                 Text(
-                  'No meals for this age yet',
+                  emptyMessage,
                   style: GoogleFonts.quicksand(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
