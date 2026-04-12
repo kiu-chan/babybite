@@ -42,14 +42,16 @@ class _EditBabyScreenState extends State<EditBabyScreen> {
   late final TextEditingController _nameCtrl;
   late final TextEditingController _allergiesCtrl;
   late final TextEditingController _weightCtrl;
+  late List<String> _allergyTags;
   DateTime? _birthDate;
 
   @override
   void initState() {
     super.initState();
     _nameCtrl = TextEditingController(text: widget.baby.name);
-    _allergiesCtrl = TextEditingController(text: widget.baby.allergies);
+    _allergiesCtrl = TextEditingController();
     _weightCtrl = TextEditingController(text: _extractWeightNumber(widget.baby.weight));
+    _allergyTags = _parseAllergyTags(widget.baby.allergies);
     _birthDate = widget.baby.birthDate;
   }
 
@@ -91,6 +93,63 @@ class _EditBabyScreenState extends State<EditBabyScreen> {
     return cleaned;
   }
 
+  List<String> _parseAllergyTags(String raw) {
+    final normalized = raw.trim();
+    if (normalized.isEmpty) return ['None'];
+
+    final tags = normalized
+        .split(',')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+
+    return tags.isEmpty ? ['None'] : tags;
+  }
+
+  List<String> get _filteredAllergySuggestions {
+    final query = _allergiesCtrl.text.trim().toLowerCase();
+    return _allergySuggestions.where((item) {
+      final selected = _allergyTags.any(
+        (tag) => tag.toLowerCase() == item.toLowerCase(),
+      );
+      if (selected) return false;
+      if (query.isEmpty) return true;
+      return item.toLowerCase().contains(query);
+    }).toList();
+  }
+
+  void _addAllergyTag(String rawTag) {
+    final value = rawTag.trim().replaceAll(',', '');
+    if (value.isEmpty) return;
+
+    final exists = _allergyTags.any(
+      (tag) => tag.toLowerCase() == value.toLowerCase(),
+    );
+    if (exists) {
+      _allergiesCtrl.clear();
+      setState(() {});
+      return;
+    }
+
+    final isNone = value.toLowerCase() == 'none';
+    setState(() {
+      if (isNone) {
+        _allergyTags = ['None'];
+      } else {
+        _allergyTags.removeWhere((tag) => tag.toLowerCase() == 'none');
+        _allergyTags.add(value);
+      }
+      _allergiesCtrl.clear();
+    });
+  }
+
+  void _removeAllergyTag(String tag) {
+    setState(() {
+      _allergyTags.remove(tag);
+      if (_allergyTags.isEmpty) _allergyTags = ['None'];
+    });
+  }
+
   String _formatWeightForSave(String rawInput) {
     final normalized = rawInput.replaceAll(',', '.').trim();
     if (normalized.isEmpty) return '';
@@ -103,13 +162,90 @@ class _EditBabyScreenState extends State<EditBabyScreen> {
       ..selection = TextSelection.collapsed(offset: value.length);
   }
 
+  Future<void> _showWeightPicker() async {
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Select Weight',
+                  style: GoogleFonts.fredoka(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.blueDeep,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Flexible(
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: _weightSuggestions.length,
+                    separatorBuilder: (_, _) => const Divider(
+                      height: 1,
+                      color: AppColors.cardBorder,
+                    ),
+                    itemBuilder: (_, index) {
+                      final value = _weightSuggestions[index];
+                      final isActive = value == _weightCtrl.text.trim();
+                      return ListTile(
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 6),
+                        title: Text(
+                          '$value kg',
+                          style: GoogleFonts.quicksand(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: isActive
+                                ? AppColors.blueAccent
+                                : AppColors.blueDeep,
+                          ),
+                        ),
+                        trailing: isActive
+                            ? const Icon(
+                                Icons.check_circle_rounded,
+                                color: AppColors.blueAccent,
+                              )
+                            : null,
+                        onTap: () => Navigator.of(context).pop(value),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (selected != null) {
+      _selectWeight(selected);
+      setState(() {});
+    }
+  }
+
   void _save() {
+    final pending = _allergiesCtrl.text.trim();
+    if (pending.isNotEmpty) {
+      _addAllergyTag(pending);
+    }
+
     Navigator.of(context).pop(
       widget.baby.copyWith(
         name: _nameCtrl.text.trim(),
         birthDate: _birthDate,
         clearBirthDate: _birthDate == null,
-        allergies: _allergiesCtrl.text.trim(),
+        allergies: _allergyTags.join(', '),
         weight: _formatWeightForSave(_weightCtrl.text),
       ),
     );
@@ -347,41 +483,21 @@ class _EditBabyScreenState extends State<EditBabyScreen> {
 
   Widget _allergiesField() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.warning_amber_rounded,
               size: 20, color: AppColors.blueSoft),
           const SizedBox(width: 12),
           Expanded(
-            child: Autocomplete<String>(
-              initialValue: TextEditingValue(text: _allergiesCtrl.text),
-              optionsBuilder: (textEditingValue) {
-                final query = textEditingValue.text.trim().toLowerCase();
-                if (query.isEmpty) return _allergySuggestions;
-                return _allergySuggestions.where(
-                  (item) => item.toLowerCase().contains(query),
-                );
-              },
-              onSelected: (value) {
-                _allergiesCtrl.text = value;
-              },
-              fieldViewBuilder:
-                  (context, textEditingController, focusNode, onFieldSubmitted) {
-                if (_allergiesCtrl.text != textEditingController.text) {
-                  textEditingController.value = TextEditingValue(
-                    text: _allergiesCtrl.text,
-                    selection: TextSelection.collapsed(
-                      offset: _allergiesCtrl.text.length,
-                    ),
-                  );
-                }
-
-                return TextField(
-                  controller: textEditingController,
-                  focusNode: focusNode,
-                  onChanged: (value) => _allergiesCtrl.text = value,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: _allergiesCtrl,
+                  onChanged: (_) => setState(() {}),
+                  onSubmitted: _addAllergyTag,
                   style: GoogleFonts.quicksand(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -394,47 +510,71 @@ class _EditBabyScreenState extends State<EditBabyScreen> {
                     border: InputBorder.none,
                     focusedBorder: InputBorder.none,
                     enabledBorder: InputBorder.none,
-                    suffixIcon: const Icon(
-                      Icons.arrow_drop_down_rounded,
-                      color: AppColors.placeholder,
-                    ),
                   ),
-                );
-              },
-              optionsViewBuilder: (context, onSelected, options) {
-                return Align(
-                  alignment: Alignment.topLeft,
-                  child: Material(
-                    elevation: 6,
-                    borderRadius: BorderRadius.circular(12),
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        maxHeight: 220,
-                        minWidth: 250,
-                      ),
-                      child: ListView.builder(
-                        padding: EdgeInsets.zero,
-                        itemCount: options.length,
-                        itemBuilder: (context, index) {
-                          final option = options.elementAt(index);
-                          return ListTile(
-                            dense: true,
-                            title: Text(
-                              option,
+                ),
+                if (_allergyTags.isNotEmpty)
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _allergyTags.map((tag) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFD6EDFB),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              tag,
                               style: GoogleFonts.quicksand(
-                                fontSize: 13,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.blueDeep,
                               ),
                             ),
-                            onTap: () => onSelected(option),
-                          );
-                        },
-                      ),
-                    ),
+                            const SizedBox(width: 6),
+                            GestureDetector(
+                              onTap: () => _removeAllergyTag(tag),
+                              child: const Icon(
+                                Icons.close_rounded,
+                                size: 14,
+                                color: AppColors.blueMid,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
                   ),
-                );
-              },
+                if (_filteredAllergySuggestions.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _filteredAllergySuggestions.map((suggestion) {
+                      return ActionChip(
+                        onPressed: () => _addAllergyTag(suggestion),
+                        label: Text(
+                          suggestion,
+                          style: GoogleFonts.quicksand(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.blueMid,
+                          ),
+                        ),
+                        backgroundColor: const Color(0xFFF4F8FD),
+                        side: const BorderSide(color: AppColors.cardBorder),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ],
             ),
           ),
         ],
@@ -466,11 +606,16 @@ class _EditBabyScreenState extends State<EditBabyScreen> {
               decoration: InputDecoration(
                 labelText: 'Weight',
                 hintText: 'Enter number or pick',
-                suffixText: 'kg',
-                suffixStyle: GoogleFonts.quicksand(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.blueMid,
+                suffix: Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: Text(
+                    'kg',
+                    style: GoogleFonts.quicksand(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.blueMid,
+                    ),
+                  ),
                 ),
                 labelStyle: GoogleFonts.quicksand(
                     fontSize: 13, color: AppColors.placeholder),
@@ -480,35 +625,25 @@ class _EditBabyScreenState extends State<EditBabyScreen> {
               ),
             ),
           ),
-          PopupMenuButton<String>(
-            tooltip: 'Pick weight',
-            onSelected: _selectWeight,
-            itemBuilder: (context) {
-              return _weightSuggestions
-                  .map(
-                    (value) => PopupMenuItem<String>(
-                      value: value,
-                      child: Text(
-                        '$value kg',
-                        style: GoogleFonts.quicksand(
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.blueDeep,
-                        ),
-                      ),
-                    ),
-                  )
-                  .toList();
-            },
-            child: Container(
-              width: 34,
-              height: 34,
-              decoration: BoxDecoration(
-                color: const Color(0xFFD6EDFB),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(
-                Icons.arrow_drop_down_rounded,
-                color: AppColors.blueAccent,
+          const SizedBox(width: 8),
+          Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(10),
+              onTap: _showWeightPicker,
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD6EDFB),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.unfold_more_rounded,
+                  color: AppColors.blueAccent,
+                  size: 20,
+                ),
               ),
             ),
           ),

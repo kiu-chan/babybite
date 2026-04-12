@@ -110,24 +110,35 @@ class _InfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 18, color: AppColors.blueSoft),
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Icon(icon, size: 18, color: AppColors.blueSoft),
+        ),
         const SizedBox(width: 10),
-        Text(
-          label,
-          style: GoogleFonts.quicksand(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: AppColors.placeholder,
+        SizedBox(
+          width: 72,
+          child: Text(
+            label,
+            style: GoogleFonts.quicksand(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.placeholder,
+            ),
           ),
         ),
-        const Spacer(),
-        Text(
-          value,
-          style: GoogleFonts.quicksand(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: valueColor ?? AppColors.blueDeep,
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            value,
+            textAlign: TextAlign.right,
+            softWrap: true,
+            style: GoogleFonts.quicksand(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: valueColor ?? AppColors.blueDeep,
+            ),
           ),
         ),
       ],
