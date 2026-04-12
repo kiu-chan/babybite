@@ -4,6 +4,7 @@ import '../screens/order/models/order.dart';
 import '../screens/order/models/cart_item.dart';
 import '../screens/order/models/delivery_address.dart';
 import '../screens/order/models/delivery_time.dart';
+import 'notification_service.dart';
 
 class OrderService extends ChangeNotifier {
   static final OrderService instance = OrderService._internal();
@@ -53,6 +54,11 @@ class OrderService extends ChangeNotifier {
     if (order == null || order.status == OrderStatus.delivered) return;
     order.status = status;
     notifyListeners();
+    NotificationService.instance.add(
+      title: status.label,
+      body: 'Đơn hàng #$orderId — ${status.sublabel}',
+      orderId: orderId,
+    );
   }
 
   /// Simulated progression: Received → Preparing → Out → Delivered

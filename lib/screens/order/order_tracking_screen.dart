@@ -11,8 +11,15 @@ const _kGreen = Color(0xFF7AC96A);
 
 class OrderTrackingScreen extends StatefulWidget {
   final String orderId;
+  /// true = came from OrderHistoryScreen (just pop back)
+  /// false = came from OrderConfirmationScreen (go to home)
+  final bool fromHistory;
 
-  const OrderTrackingScreen({super.key, required this.orderId});
+  const OrderTrackingScreen({
+    super.key,
+    required this.orderId,
+    this.fromHistory = false,
+  });
 
   @override
   State<OrderTrackingScreen> createState() => _OrderTrackingScreenState();
@@ -105,7 +112,14 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
       child: Row(
         children: [
           GestureDetector(
-            onTap: () => Navigator.of(context).pop(),
+            onTap: () {
+              if (widget.fromHistory) {
+                Navigator.of(context).pop();
+              } else {
+                Navigator.of(context)
+                    .pushNamedAndRemoveUntil('/home', (route) => false);
+              }
+            },
             child: Container(
               width: 44,
               height: 44,

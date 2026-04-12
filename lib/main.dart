@@ -7,8 +7,11 @@ import 'screens/menu/menu_screen.dart';
 import 'screens/order/orders_page.dart';
 import 'screens/profile/profile_screen.dart';
 import 'widgets/bottom_nav.dart';
+import 'widgets/in_app_notification_overlay.dart';
 
 void main() => runApp(const BabyBiteApp());
+
+final _navKey = GlobalKey<NavigatorState>();
 
 class BabyBiteApp extends StatelessWidget {
   const BabyBiteApp({super.key});
@@ -17,6 +20,7 @@ class BabyBiteApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'BabyBite',
+      navigatorKey: _navKey,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
@@ -28,6 +32,10 @@ class BabyBiteApp extends StatelessWidget {
         '/': (_) => const SplashScreen(),
         '/home': (_) => const RootScreen(),
       },
+      builder: (context, child) => InAppNotificationOverlay(
+        navigatorKey: _navKey,
+        child: child!,
+      ),
     );
   }
 }

@@ -3,8 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/app_colors.dart';
 import '../../profile/models/user_profile.dart';
 import '../../profile/models/baby_info.dart';
+import '../../../services/notification_service.dart';
+import '../../notifications/notifications_screen.dart';
 
-class HeroHeader extends StatelessWidget {
+class HeroHeader extends StatefulWidget {
   final UserProfile profile;
   final BabyInfo baby;
 
@@ -14,65 +16,61 @@ class HeroHeader extends StatelessWidget {
     required this.baby,
   });
 
+  @override
+  State<HeroHeader> createState() => _HeroHeaderState();
+}
+
+class _HeroHeaderState extends State<HeroHeader> {
+  final _notifService = NotificationService.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _notifService.addListener(_onNotifChanged);
+  }
+
+  void _onNotifChanged() => setState(() {});
+
+  @override
+  void dispose() {
+    _notifService.removeListener(_onNotifChanged);
+    super.dispose();
+  }
+
   void _showMenu(BuildContext context) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (_) => _ProfileSheet(profile: profile, baby: baby),
+      builder: (_) =>
+          _ProfileSheet(profile: widget.profile, baby: widget.baby),
     );
   }
 
-  void _showNotifications(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (_) => SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _pill(),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Text(
-                    'Notifications',
-                    style: GoogleFonts.fredoka(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.blueDeep,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              const Icon(Icons.notifications_none_rounded,
-                  size: 48, color: AppColors.blueSoft),
-              const SizedBox(height: 12),
-              Text(
-                'No new notifications',
-                style: GoogleFonts.quicksand(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.blueMid,
-                ),
-              ),
-              const SizedBox(height: 8),
-            ],
-          ),
+  void _openNotifications(BuildContext context) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, _) =>
+            const NotificationsScreen(),
+        transitionsBuilder: (context, animation, _, child) =>
+            SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0.0, -1.0),
+            end: Offset.zero,
+          ).animate(CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+          )),
+          child: child,
         ),
+        transitionDuration: const Duration(milliseconds: 320),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final unread = _notifService.unreadCount;
     return ClipRRect(
       borderRadius: const BorderRadius.only(
         bottomLeft: Radius.circular(36),
@@ -108,9 +106,40 @@ class HeroHeader extends StatelessWidget {
                       letterSpacing: -0.5,
                     ),
                   ),
-                  _IconButton(
-                    icon: Icons.notifications_none_rounded,
-                    onTap: () => _showNotifications(context),
+                  // Bell with unread badge
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      _IconButton(
+                        icon: unread > 0
+                            ? Icons.notifications_rounded
+                            : Icons.notifications_none_rounded,
+                        onTap: () => _openNotifications(context),
+                      ),
+                      if (unread > 0)
+                        Positioned(
+                          top: -4,
+                          right: -4,
+                          child: Container(
+                            width: 18,
+                            height: 18,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFE57373),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: Text(
+                                unread > 9 ? '9+' : '$unread',
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ],
               ),

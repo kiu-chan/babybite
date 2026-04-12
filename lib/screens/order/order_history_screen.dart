@@ -270,8 +270,8 @@ class _OrderCard extends StatelessWidget {
               onTap: () {
                 Navigator.of(context).push(
                   PageRouteBuilder(
-                    pageBuilder: (context, animation, _) =>
-                        OrderTrackingScreen(orderId: order.orderId),
+                    pageBuilder: (context, animation, _) => OrderTrackingScreen(
+                        orderId: order.orderId, fromHistory: true),
                     transitionsBuilder:
                         (context, animation, _, child) =>
                             SlideTransition(
