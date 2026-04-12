@@ -9,6 +9,8 @@ class FilterDrawer extends StatelessWidget {
   final int selectedCategoryIndex;
   final ValueChanged<int> onAgeChanged;
   final ValueChanged<int> onCategoryChanged;
+  final bool favoritesOnly;
+  final ValueChanged<bool> onFavoritesOnlyChanged;
   final VoidCallback onReset;
 
   const FilterDrawer({
@@ -19,6 +21,8 @@ class FilterDrawer extends StatelessWidget {
     required this.selectedCategoryIndex,
     required this.onAgeChanged,
     required this.onCategoryChanged,
+    required this.favoritesOnly,
+    required this.onFavoritesOnlyChanged,
     required this.onReset,
   });
 
@@ -58,6 +62,12 @@ class FilterDrawer extends StatelessWidget {
                       label: 'Category',
                       icon: Icons.restaurant_menu_rounded,
                       child: _buildCategoryChips(),
+                    ),
+                    const SizedBox(height: 28),
+                    _buildSection(
+                      label: 'Favorites',
+                      icon: Icons.favorite_rounded,
+                      child: _buildFavoritesToggle(),
                     ),
                   ],
                 ),
@@ -269,6 +279,42 @@ class FilterDrawer extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFavoritesToggle() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFD6E6F7)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.blueSoft.withValues(alpha: .12),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: SwitchListTile.adaptive(
+        value: favoritesOnly,
+        onChanged: onFavoritesOnlyChanged,
+        activeColor: const Color(0xFFE86868),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+        title: Text(
+          'Only favorites',
+          style: GoogleFonts.quicksand(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: AppColors.blueDeep,
+          ),
+        ),
+        secondary: Icon(
+          favoritesOnly ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+          color: favoritesOnly ? const Color(0xFFE86868) : AppColors.blueMid,
+          size: 18,
         ),
       ),
     );

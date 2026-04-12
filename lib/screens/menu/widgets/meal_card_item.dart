@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/app_colors.dart';
+import '../../../services/favorite_service.dart';
 import '../models/meal.dart';
 import '../meal_detail_screen.dart';
 
@@ -59,6 +60,7 @@ class MealCardItem extends StatelessWidget {
   }
 
   Widget _buildImage() {
+    final favoriteListenable = FavoriteService.instance.favoriteMealIdsListenable;
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       child: Stack(
@@ -87,6 +89,32 @@ class MealCardItem extends StatelessWidget {
                   color: AppColors.blueMid,
                 ),
               ),
+            ),
+          ),
+          Positioned(
+            top: 12,
+            left: 12,
+            child: ValueListenableBuilder<Set<String>>(
+              valueListenable: favoriteListenable,
+              builder: (_, favoriteIds, __) {
+                if (!favoriteIds.contains(meal.id)) {
+                  return const SizedBox.shrink();
+                }
+
+                return Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: .92),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: const Icon(
+                    Icons.favorite_rounded,
+                    size: 17,
+                    color: Color(0xFFE86868),
+                  ),
+                );
+              },
             ),
           ),
         ],

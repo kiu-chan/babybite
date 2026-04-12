@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/app_colors.dart';
 import 'models/baby_info.dart';
@@ -12,6 +13,32 @@ class EditBabyScreen extends StatefulWidget {
 }
 
 class _EditBabyScreenState extends State<EditBabyScreen> {
+  static const List<String> _allergySuggestions = [
+    'None',
+    'Dairy',
+    'Eggs',
+    'Peanuts',
+    'Tree nuts',
+    'Soy',
+    'Wheat',
+    'Fish',
+    'Shellfish',
+    'Sesame',
+  ];
+
+  static const List<String> _weightSuggestions = [
+    '5.5',
+    '6.0',
+    '6.5',
+    '7.0',
+    '7.5',
+    '8.0',
+    '8.5',
+    '9.0',
+    '9.5',
+    '10.0',
+  ];
+
   late final TextEditingController _nameCtrl;
   late final TextEditingController _allergiesCtrl;
   late final TextEditingController _weightCtrl;
@@ -22,7 +49,7 @@ class _EditBabyScreenState extends State<EditBabyScreen> {
     super.initState();
     _nameCtrl = TextEditingController(text: widget.baby.name);
     _allergiesCtrl = TextEditingController(text: widget.baby.allergies);
-    _weightCtrl = TextEditingController(text: widget.baby.weight);
+    _weightCtrl = TextEditingController(text: _extractWeightNumber(widget.baby.weight));
     _birthDate = widget.baby.birthDate;
   }
 
@@ -59,6 +86,23 @@ class _EditBabyScreenState extends State<EditBabyScreen> {
   String _formatDate(DateTime d) =>
       '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
 
+  String _extractWeightNumber(String rawWeight) {
+    final cleaned = rawWeight.replaceAll(RegExp(r'[^0-9.]'), '');
+    return cleaned;
+  }
+
+  String _formatWeightForSave(String rawInput) {
+    final normalized = rawInput.replaceAll(',', '.').trim();
+    if (normalized.isEmpty) return '';
+    return '$normalized kg';
+  }
+
+  void _selectWeight(String value) {
+    _weightCtrl
+      ..text = value
+      ..selection = TextSelection.collapsed(offset: value.length);
+  }
+
   void _save() {
     Navigator.of(context).pop(
       widget.baby.copyWith(
@@ -66,7 +110,7 @@ class _EditBabyScreenState extends State<EditBabyScreen> {
         birthDate: _birthDate,
         clearBirthDate: _birthDate == null,
         allergies: _allergiesCtrl.text.trim(),
-        weight: _weightCtrl.text.trim(),
+        weight: _formatWeightForSave(_weightCtrl.text),
       ),
     );
   }
@@ -99,19 +143,9 @@ class _EditBabyScreenState extends State<EditBabyScreen> {
                   _sectionLabel('Health'),
                   const SizedBox(height: 12),
                   _buildCard(children: [
-                    _field(
-                      controller: _allergiesCtrl,
-                      label: 'Allergies (e.g. None, Dairy, Eggs)',
-                      icon: Icons.warning_amber_rounded,
-                    ),
+                    _allergiesField(),
                     _divider(),
-                    _field(
-                      controller: _weightCtrl,
-                      label: 'Weight (e.g. 8.2 kg)',
-                      icon: Icons.monitor_weight_outlined,
-                      keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true),
-                    ),
+                    _weightField(),
                   ]),
                   const SizedBox(height: 32),
                   _saveButton(),
@@ -303,6 +337,178 @@ class _EditBabyScreenState extends State<EditBabyScreen> {
                 border: InputBorder.none,
                 focusedBorder: InputBorder.none,
                 enabledBorder: InputBorder.none,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _allergiesField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Icon(Icons.warning_amber_rounded,
+              size: 20, color: AppColors.blueSoft),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Autocomplete<String>(
+              initialValue: TextEditingValue(text: _allergiesCtrl.text),
+              optionsBuilder: (textEditingValue) {
+                final query = textEditingValue.text.trim().toLowerCase();
+                if (query.isEmpty) return _allergySuggestions;
+                return _allergySuggestions.where(
+                  (item) => item.toLowerCase().contains(query),
+                );
+              },
+              onSelected: (value) {
+                _allergiesCtrl.text = value;
+              },
+              fieldViewBuilder:
+                  (context, textEditingController, focusNode, onFieldSubmitted) {
+                if (_allergiesCtrl.text != textEditingController.text) {
+                  textEditingController.value = TextEditingValue(
+                    text: _allergiesCtrl.text,
+                    selection: TextSelection.collapsed(
+                      offset: _allergiesCtrl.text.length,
+                    ),
+                  );
+                }
+
+                return TextField(
+                  controller: textEditingController,
+                  focusNode: focusNode,
+                  onChanged: (value) => _allergiesCtrl.text = value,
+                  style: GoogleFonts.quicksand(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.blueDeep,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: 'Allergies (type to see suggestions)',
+                    labelStyle: GoogleFonts.quicksand(
+                        fontSize: 13, color: AppColors.placeholder),
+                    border: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    suffixIcon: const Icon(
+                      Icons.arrow_drop_down_rounded,
+                      color: AppColors.placeholder,
+                    ),
+                  ),
+                );
+              },
+              optionsViewBuilder: (context, onSelected, options) {
+                return Align(
+                  alignment: Alignment.topLeft,
+                  child: Material(
+                    elevation: 6,
+                    borderRadius: BorderRadius.circular(12),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxHeight: 220,
+                        minWidth: 250,
+                      ),
+                      child: ListView.builder(
+                        padding: EdgeInsets.zero,
+                        itemCount: options.length,
+                        itemBuilder: (context, index) {
+                          final option = options.elementAt(index);
+                          return ListTile(
+                            dense: true,
+                            title: Text(
+                              option,
+                              style: GoogleFonts.quicksand(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.blueDeep,
+                              ),
+                            ),
+                            onTap: () => onSelected(option),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _weightField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Row(
+        children: [
+          const Icon(Icons.monitor_weight_outlined,
+              size: 20, color: AppColors.blueSoft),
+          const SizedBox(width: 12),
+          Expanded(
+            child: TextField(
+              controller: _weightCtrl,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+              ],
+              style: GoogleFonts.quicksand(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.blueDeep,
+              ),
+              decoration: InputDecoration(
+                labelText: 'Weight',
+                hintText: 'Enter number or pick',
+                suffixText: 'kg',
+                suffixStyle: GoogleFonts.quicksand(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.blueMid,
+                ),
+                labelStyle: GoogleFonts.quicksand(
+                    fontSize: 13, color: AppColors.placeholder),
+                border: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                enabledBorder: InputBorder.none,
+              ),
+            ),
+          ),
+          PopupMenuButton<String>(
+            tooltip: 'Pick weight',
+            onSelected: _selectWeight,
+            itemBuilder: (context) {
+              return _weightSuggestions
+                  .map(
+                    (value) => PopupMenuItem<String>(
+                      value: value,
+                      child: Text(
+                        '$value kg',
+                        style: GoogleFonts.quicksand(
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.blueDeep,
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList();
+            },
+            child: Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: const Color(0xFFD6EDFB),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.arrow_drop_down_rounded,
+                color: AppColors.blueAccent,
               ),
             ),
           ),

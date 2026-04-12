@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/app_colors.dart';
+import '../../services/favorite_service.dart';
 import 'data/meal_data.dart';
 import 'models/meal.dart';
 import 'widgets/menu_header.dart';
@@ -23,6 +24,7 @@ class _MenuScreenState extends State<MenuScreen> {
 
   int _ageIndex = 3; // default: All
   int _categoryIndex = 0;
+  bool _favoritesOnly = false;
 
   static const _ages = ['6m', '8m', '12m', 'All'];
   static const _categories = ['Purees', 'Finger Foods', 'Breakfast', 'Snacks'];
@@ -49,20 +51,23 @@ class _MenuScreenState extends State<MenuScreen> {
     int count = 0;
     if (_ageIndex != 3) count++;
     if (_categoryIndex != 0) count++;
+    if (_favoritesOnly) count++;
     return count;
   }
 
   List<Meal> get _filtered {
     final selectedAge = _ages[_ageIndex];
     final selectedCategory = _categories[_categoryIndex];
+    final favoriteIds = FavoriteService.instance.favoriteMealIdsListenable.value;
 
     return allMeals.where((m) {
       final ageOk = selectedAge == 'All' ||
           m.ageInMonths == _ageInMonths(selectedAge);
       final catOk = m.category == selectedCategory;
+      final favoriteOk = !_favoritesOnly || favoriteIds.contains(m.id);
       final searchOk = _searchText.isEmpty ||
           m.name.toLowerCase().contains(_searchText.toLowerCase());
-      return ageOk && catOk && searchOk;
+      return ageOk && catOk && favoriteOk && searchOk;
     }).toList();
   }
 
@@ -81,8 +86,6 @@ class _MenuScreenState extends State<MenuScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final meals = _filtered;
-
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: const Color(0xFFEAF4FF),
@@ -93,22 +96,32 @@ class _MenuScreenState extends State<MenuScreen> {
         selectedCategoryIndex: _categoryIndex,
         onAgeChanged: (i) => setState(() => _ageIndex = i),
         onCategoryChanged: (i) => setState(() => _categoryIndex = i),
+        favoritesOnly: _favoritesOnly,
+        onFavoritesOnlyChanged: (value) =>
+            setState(() => _favoritesOnly = value),
         onReset: () => setState(() {
           _ageIndex = 3;
           _categoryIndex = 0;
+          _favoritesOnly = false;
         }),
       ),
       body: Stack(
         children: [
           // List fills full body, top padding reserves space for floating header
-          meals.isEmpty
-              ? _buildEmpty()
-              : ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(20, 76, 20, 24),
-                  itemCount: meals.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 16),
-                  itemBuilder: (_, i) => MealCardItem(meal: meals[i]),
-                ),
+          ValueListenableBuilder<Set<String>>(
+            valueListenable: FavoriteService.instance.favoriteMealIdsListenable,
+            builder: (_, __, ___) {
+              final filteredMeals = _filtered;
+              return filteredMeals.isEmpty
+                  ? _buildEmpty()
+                  : ListView.separated(
+                      padding: const EdgeInsets.fromLTRB(20, 76, 20, 24),
+                      itemCount: filteredMeals.length,
+                      separatorBuilder: (_, _) => const SizedBox(height: 16),
+                      itemBuilder: (_, i) => MealCardItem(meal: filteredMeals[i]),
+                    );
+            },
+          ),
 
           // Transparent floating header pinned at top
           Positioned(

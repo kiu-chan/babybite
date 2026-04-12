@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/app_colors.dart';
+import '../../../services/order_service.dart';
+import '../../../services/favorite_service.dart';
 
 class StatsRow extends StatelessWidget {
   const StatsRow({super.key});
@@ -11,21 +13,23 @@ class StatsRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Row(
         children: [
-          _StatCard(
-              value: '48',
-              label: 'Meals\nTried',
-              icon: Icons.restaurant_rounded),
+          AnimatedBuilder(
+            animation: OrderService.instance,
+            builder: (_, __) => _StatCard(
+              value: '${OrderService.instance.orders.length}',
+              label: 'Orders\nPlaced',
+              icon: Icons.receipt_long_rounded,
+            ),
+          ),
           const SizedBox(width: 12),
-          _StatCard(
-              value: '12',
+          ValueListenableBuilder<Set<String>>(
+            valueListenable: FavoriteService.instance.favoriteMealIdsListenable,
+            builder: (_, favoriteIds, __) => _StatCard(
+              value: '${favoriteIds.length}',
               label: 'Saved\nFavorites',
-              icon: Icons.favorite_rounded),
-          const SizedBox(width: 12),
-          _StatCard(
-            value: '7',
-            label: 'Day\nStreak',
-            icon: Icons.local_fire_department_rounded,
-            accentColor: const Color(0xFFF5B638),
+              icon: Icons.favorite_rounded,
+              accentColor: const Color(0xFFE86868),
+            ),
           ),
         ],
       ),

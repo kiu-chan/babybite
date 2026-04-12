@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/app_colors.dart';
+import '../../../services/favorite_service.dart';
 import '../../menu/models/meal.dart';
 import '../../menu/meal_detail_screen.dart';
 
@@ -66,6 +67,7 @@ class _MealChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final favoriteListenable = FavoriteService.instance.favoriteMealIdsListenable;
     return GestureDetector(
       onTap: () => Navigator.of(context).push(
         PageRouteBuilder(
@@ -130,6 +132,32 @@ class _MealChip extends StatelessWidget {
                           color: AppColors.blueMid,
                         ),
                       ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: ValueListenableBuilder<Set<String>>(
+                      valueListenable: favoriteListenable,
+                      builder: (_, favoriteIds, __) {
+                        if (!favoriteIds.contains(meal.id)) {
+                          return const SizedBox.shrink();
+                        }
+
+                        return Container(
+                          width: 22,
+                          height: 22,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: .9),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: const Icon(
+                            Icons.favorite_rounded,
+                            size: 13,
+                            color: Color(0xFFE86868),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ],

@@ -6,6 +6,7 @@ import '../profile/models/baby_info.dart';
 import '../menu/data/meal_data.dart';
 import '../menu/models/meal.dart';
 import '../menu/meal_detail_screen.dart';
+import '../../services/favorite_service.dart';
 import 'widgets/hero_header.dart';
 import 'widgets/home_search_bar.dart';
 import 'widgets/section_head.dart';
@@ -60,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
         .where((meal) => meal.name.toLowerCase().contains(query))
         .toList();
     results.sort((a, b) => b.rating.compareTo(a.rating));
-    return results.take(6).toList();
+    return results.take(5).toList();
   }
 
   bool get _showSearchDropdown {
@@ -174,6 +175,33 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 14),
               RecommendedMealsList(meals: meals),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Text(
+                  'Your Favorites',
+                  style: GoogleFonts.fredoka(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.blueDeep,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              ValueListenableBuilder<Set<String>>(
+                valueListenable: FavoriteService.instance.favoriteMealIdsListenable,
+                builder: (_, favoriteIds, __) {
+                  final favoriteMeals = allMeals
+                      .where((meal) => favoriteIds.contains(meal.id))
+                      .toList()
+                    ..sort((a, b) => b.rating.compareTo(a.rating));
+
+                  return RecommendedMealsList(
+                    meals: favoriteMeals,
+                    emptyMessage: 'No favorite meals yet',
+                  );
+                },
+              ),
               const SizedBox(height: 24),
             ],
           ),
@@ -246,42 +274,62 @@ class _SearchSuggestionsDropdown extends StatelessWidget {
         ),
         itemBuilder: (context, index) {
           final meal = suggestions[index];
-          return ListTile(
-            dense: true,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-            leading: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                meal.imagePath,
-                width: 30,
-                height: 30,
-                fit: BoxFit.cover,
-              ),
-            ),
-            title: Text(
-              meal.name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.quicksand(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: AppColors.blueDeep,
-              ),
-            ),
-            subtitle: Text(
-              '${meal.age}+ • ${meal.category}',
-              style: GoogleFonts.quicksand(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: AppColors.blueMid,
-              ),
-            ),
-            trailing: const Icon(
-              Icons.arrow_outward_rounded,
-              size: 16,
-              color: AppColors.blueAccent,
-            ),
-            onTap: () => onTapMeal(meal),
+          return ValueListenableBuilder<Set<String>>(
+            valueListenable: FavoriteService.instance.favoriteMealIdsListenable,
+            builder: (_, favoriteIds, __) {
+              final isFavorite = favoriteIds.contains(meal.id);
+              return ListTile(
+                dense: true,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                leading: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.asset(
+                    meal.imagePath,
+                    width: 30,
+                    height: 30,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                title: Text(
+                  meal.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.quicksand(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.blueDeep,
+                  ),
+                ),
+                subtitle: Text(
+                  '${meal.age}+ • ${meal.category}',
+                  style: GoogleFonts.quicksand(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.blueMid,
+                  ),
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (isFavorite)
+                      const Padding(
+                        padding: EdgeInsets.only(right: 6),
+                        child: Icon(
+                          Icons.favorite_rounded,
+                          size: 15,
+                          color: Color(0xFFE86868),
+                        ),
+                      ),
+                    const Icon(
+                      Icons.arrow_outward_rounded,
+                      size: 16,
+                      color: AppColors.blueAccent,
+                    ),
+                  ],
+                ),
+                onTap: () => onTapMeal(meal),
+              );
+            },
           );
         },
       ),

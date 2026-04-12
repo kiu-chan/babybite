@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'models/meal.dart';
 import '../../services/cart_service.dart';
+import '../../services/favorite_service.dart';
 
 class MealDetailScreen extends StatefulWidget {
   final Meal meal;
@@ -43,7 +44,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(context),
+            _buildHeader(context, meal),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
@@ -68,7 +69,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
   // ────────────────────────────────────────────────────────
   // HEADER
   // ────────────────────────────────────────────────────────
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, Meal meal) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
       child: Row(
@@ -88,13 +89,54 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
               ),
             ),
           ),
-          _circleBtn(icon: Icons.favorite_border_rounded, onTap: () {}),
+          ValueListenableBuilder<Set<String>>(
+            valueListenable: FavoriteService.instance.favoriteMealIdsListenable,
+            builder: (_, favoriteIds, __) {
+              final isFavorite = favoriteIds.contains(meal.id);
+              return _circleBtn(
+                icon: isFavorite
+                    ? Icons.favorite_rounded
+                    : Icons.favorite_border_rounded,
+                iconColor:
+                    isFavorite ? const Color(0xFFE86868) : const Color(0xFF5AA3E8),
+                onTap: () => _toggleFavorite(meal, isFavorite),
+              );
+            },
+          ),
         ],
       ),
     );
   }
 
-  Widget _circleBtn({required IconData icon, required VoidCallback onTap}) {
+  void _toggleFavorite(Meal meal, bool isFavorite) {
+    FavoriteService.instance.toggleFavorite(meal);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          isFavorite
+              ? '${meal.name} removed from favorites'
+              : '${meal.name} added to favorites',
+          style: GoogleFonts.quicksand(
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: isFavorite
+            ? const Color(0xFF8FA8BF)
+            : const Color(0xFFE86868),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  Widget _circleBtn({
+    required IconData icon,
+    required VoidCallback onTap,
+    Color iconColor = const Color(0xFF5AA3E8),
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -111,7 +153,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
             ),
           ],
         ),
-        child: Icon(icon, color: const Color(0xFF5AA3E8), size: 22),
+        child: Icon(icon, color: iconColor, size: 22),
       ),
     );
   }
