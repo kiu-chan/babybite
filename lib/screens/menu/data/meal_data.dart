@@ -14,6 +14,7 @@ const List<Meal> allMeals = [
     rating: 4.8,
     reviews: 36,
     imagePath: 'assets/img/home_card.png',
+    price: 4.50,
   ),
   Meal(
     id: '2',
@@ -27,6 +28,7 @@ const List<Meal> allMeals = [
     rating: 4.6,
     reviews: 28,
     imagePath: 'assets/img/menu_card.png',
+    price: 4.50,
   ),
   Meal(
     id: '3',
@@ -40,6 +42,7 @@ const List<Meal> allMeals = [
     rating: 4.5,
     reviews: 24,
     imagePath: 'assets/img/menu_card.png',
+    price: 5.00,
   ),
   Meal(
     id: '4',
@@ -53,6 +56,7 @@ const List<Meal> allMeals = [
     rating: 4.4,
     reviews: 19,
     imagePath: 'assets/img/home_card.png',
+    price: 4.50,
   ),
   Meal(
     id: '5',
@@ -66,6 +70,7 @@ const List<Meal> allMeals = [
     rating: 4.3,
     reviews: 14,
     imagePath: 'assets/img/menu_card.png',
+    price: 5.00,
   ),
 
   // ── Finger Foods ─────────────────────────────────────────────
@@ -81,6 +86,7 @@ const List<Meal> allMeals = [
     rating: 4.2,
     reviews: 12,
     imagePath: 'assets/img/home_card.png',
+    price: 5.50,
   ),
   Meal(
     id: '7',
@@ -94,6 +100,7 @@ const List<Meal> allMeals = [
     rating: 4.5,
     reviews: 17,
     imagePath: 'assets/img/menu_card.png',
+    price: 5.50,
   ),
   Meal(
     id: '8',
@@ -107,6 +114,7 @@ const List<Meal> allMeals = [
     rating: 4.7,
     reviews: 22,
     imagePath: 'assets/img/home_card.png',
+    price: 5.00,
   ),
   Meal(
     id: '9',
@@ -120,6 +128,7 @@ const List<Meal> allMeals = [
     rating: 4.9,
     reviews: 41,
     imagePath: 'assets/img/menu_card.png',
+    price: 4.50,
   ),
 
   // ── Breakfast ────────────────────────────────────────────────
@@ -135,6 +144,7 @@ const List<Meal> allMeals = [
     rating: 4.7,
     reviews: 29,
     imagePath: 'assets/img/home_card.png',
+    price: 4.50,
   ),
   Meal(
     id: '11',
@@ -148,6 +158,7 @@ const List<Meal> allMeals = [
     rating: 4.4,
     reviews: 15,
     imagePath: 'assets/img/menu_card.png',
+    price: 5.00,
   ),
   Meal(
     id: '12',
@@ -161,6 +172,7 @@ const List<Meal> allMeals = [
     rating: 4.6,
     reviews: 21,
     imagePath: 'assets/img/home_card.png',
+    price: 4.50,
   ),
   Meal(
     id: '13',
@@ -174,6 +186,7 @@ const List<Meal> allMeals = [
     rating: 4.5,
     reviews: 18,
     imagePath: 'assets/img/menu_card.png',
+    price: 4.50,
   ),
 
   // ── Snacks ────────────────────────────────────────────────────
@@ -189,6 +202,7 @@ const List<Meal> allMeals = [
     rating: 4.9,
     reviews: 42,
     imagePath: 'assets/img/menu_card.png',
+    price: 3.50,
   ),
   Meal(
     id: '15',
@@ -202,6 +216,7 @@ const List<Meal> allMeals = [
     rating: 4.3,
     reviews: 9,
     imagePath: 'assets/img/home_card.png',
+    price: 4.00,
   ),
   Meal(
     id: '16',
@@ -215,6 +230,7 @@ const List<Meal> allMeals = [
     rating: 4.6,
     reviews: 16,
     imagePath: 'assets/img/menu_card.png',
+    price: 3.50,
   ),
   Meal(
     id: '17',
@@ -228,5 +244,6 @@ const List<Meal> allMeals = [
     rating: 4.4,
     reviews: 11,
     imagePath: 'assets/img/home_card.png',
+    price: 4.00,
   ),
 ];

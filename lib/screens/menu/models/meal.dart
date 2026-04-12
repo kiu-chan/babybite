@@ -10,6 +10,7 @@ class Meal {
   final double rating;
   final int reviews;
   final String imagePath;
+  final double price;
 
   const Meal({
     required this.id,
@@ -23,6 +24,7 @@ class Meal {
     required this.rating,
     required this.reviews,
     required this.imagePath,
+    required this.price,
   });
 
   int get ageInMonths {

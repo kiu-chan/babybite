@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'models/meal.dart';
+import '../../services/cart_service.dart';
 
 class MealDetailScreen extends StatefulWidget {
-  const MealDetailScreen({super.key});
+  final Meal meal;
+
+  const MealDetailScreen({super.key, required this.meal});
 
   @override
   State<MealDetailScreen> createState() => _MealDetailScreenState();
@@ -11,34 +15,59 @@ class MealDetailScreen extends StatefulWidget {
 class _MealDetailScreenState extends State<MealDetailScreen> {
   int _quantity = 1;
 
+  void _addToCart() {
+    CartService.instance.addMeal(widget.meal, _quantity);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '${widget.meal.name} added to cart!',
+          style: GoogleFonts.quicksand(
+              fontWeight: FontWeight.w700, color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFF5AA3E8),
+        behavior: SnackBarBehavior.floating,
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+    Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final meal = widget.meal;
     return Scaffold(
       backgroundColor: const Color(0xFFEAF5FF),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              _buildHeader(context),
-              _buildNutritionDropdown(),
-              _buildHeroImage(),
-              _buildTodayMealsSection(),
-              _buildMealCard(),
-              _buildNutritionDetails(),
-              _buildActionButtons(),
-              _buildOrderSummary(),
-              _buildAddressCard(),
-              const SizedBox(height: 30),
-            ],
-          ),
+        child: Column(
+          children: [
+            _buildHeader(context),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    _buildHero(meal),
+                    _buildBadgesRow(meal),
+                    _buildInfoCard(meal),
+                    _buildNutritionCard(meal),
+                    _buildAllergenCard(),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            ),
+            _buildBottomBar(meal),
+          ],
         ),
       ),
     );
   }
 
-  // ============================================================
+  // ────────────────────────────────────────────────────────
   // HEADER
-  // ============================================================
+  // ────────────────────────────────────────────────────────
   Widget _buildHeader(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
@@ -50,7 +79,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
           ),
           Expanded(
             child: Text(
-              'Your Cart',
+              'Meal Details',
               textAlign: TextAlign.center,
               style: GoogleFonts.fredoka(
                 fontSize: 26,
@@ -59,7 +88,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
               ),
             ),
           ),
-          _circleBtn(icon: Icons.settings_rounded, onTap: () {}),
+          _circleBtn(icon: Icons.favorite_border_rounded, onTap: () {}),
         ],
       ),
     );
@@ -87,125 +116,95 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
     );
   }
 
-  // ============================================================
-  // NUTRITION DROPDOWN BANNER
-  // ============================================================
-  Widget _buildNutritionDropdown() {
+  // ────────────────────────────────────────────────────────
+  // HERO – large emoji + image background
+  // ────────────────────────────────────────────────────────
+  Widget _buildHero(Meal meal) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF89B8E3).withValues(alpha: .15),
-              blurRadius: 12,
-              offset: const Offset(0, 3),
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: Image.asset(
+              meal.imagePath,
+              width: double.infinity,
+              height: 200,
+              fit: BoxFit.cover,
             ),
-          ],
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.favorite_rounded, color: Color(0xFF5AA3E8), size: 20),
-            const SizedBox(width: 10),
-            Text(
-              "Emma's Nutrition",
-              style: GoogleFonts.quicksand(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF1E3A5F),
+          ),
+          // Dark overlay
+          ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: Container(
+              height: 200,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    const Color(0xFF1E3A5F).withValues(alpha: .55),
+                  ],
+                ),
               ),
             ),
-            const Spacer(),
-            const Icon(Icons.keyboard_arrow_up_rounded,
-                color: Color(0xFF5AA3E8), size: 22),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ============================================================
-  // HERO IMAGE with decorative elements
-  // ============================================================
-  Widget _buildHeroImage() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth - 40; // 20 padding each side
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: SizedBox(
-            width: width,
-            height: 210,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(24),
-                  child: Image.asset(
-                    'assets/img/cart_header.png',
-                    width: width,
-                    height: 210,
-                    fit: BoxFit.cover,
+          ),
+          // Rating badge top-right
+          Positioned(
+            top: 12,
+            right: 12,
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: .92),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.star_rounded,
+                      size: 15, color: Color(0xFFF5B638)),
+                  const SizedBox(width: 4),
+                  Text(
+                    meal.rating.toString(),
+                    style: GoogleFonts.quicksand(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF1E3A5F),
+                    ),
                   ),
-                ),
-                Positioned(
-                  left: 14,
-                  top: 14,
-                  child: _decorativeStar(size: 16, color: Colors.white.withValues(alpha: .7)),
-                ),
-                Positioned(
-                  right: 18,
-                  top: 20,
-                  child: _decorativeStar(size: 12, color: Colors.white.withValues(alpha: .5)),
-                ),
-                Positioned(
-                  left: 30,
-                  bottom: 14,
-                  child: _decorativeStar(size: 10, color: Colors.white.withValues(alpha: .5)),
-                ),
-                Positioned(
-                  right: 30,
-                  bottom: 18,
-                  child: _decorativeStar(size: 14, color: Colors.white.withValues(alpha: .6)),
-                ),
-              ],
+                  Text(
+                    ' (${meal.reviews})',
+                    style: GoogleFonts.quicksand(
+                      fontSize: 12,
+                      color: const Color(0xFF9EBAD4),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        );
-      },
-    );
-  }
-
-  Widget _decorativeStar({required double size, required Color color}) {
-    return Icon(Icons.star_rounded, size: size, color: color);
-  }
-
-  // ============================================================
-  // TODAY'S MEALS SECTION HEADER
-  // ============================================================
-  Widget _buildTodayMealsSection() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            "Today's Meals",
-            style: GoogleFonts.fredoka(
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF1E3A5F),
-            ),
-          ),
-          Text(
-            'Wi, 2m',
-            style: GoogleFonts.quicksand(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFF5AA3E8),
+          // Meal name bottom-left
+          Positioned(
+            bottom: 14,
+            left: 16,
+            right: 16,
+            child: Text(
+              meal.name,
+              style: GoogleFonts.fredoka(
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+                shadows: [
+                  const Shadow(
+                    color: Colors.black26,
+                    blurRadius: 6,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -213,146 +212,196 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
     );
   }
 
-  // ============================================================
-  // MEAL CARD (name + subtitle)
-  // ============================================================
-  Widget _buildMealCard() {
+  // ────────────────────────────────────────────────────────
+  // BADGES ROW – age, category, stage
+  // ────────────────────────────────────────────────────────
+  Widget _buildBadgesRow(Meal meal) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
+      child: Row(
+        children: [
+          _badge(meal.age, const Color(0xFF5AA3E8), const Color(0xFFDCEEFB)),
+          const SizedBox(width: 8),
+          _badge(meal.category, const Color(0xFF7AC96A),
+              const Color(0xFFE4F8DF)),
+          const SizedBox(width: 8),
+          _badge(meal.stage, const Color(0xFFE8934A),
+              const Color(0xFFFFF0E6)),
+        ],
+      ),
+    );
+  }
+
+  Widget _badge(String label, Color textColor, Color bgColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.quicksand(
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          color: textColor,
+        ),
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────
+  // INFO CARD – stats chips
+  // ────────────────────────────────────────────────────────
+  Widget _buildInfoCard(Meal meal) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
       child: Container(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF89B8E3).withValues(alpha: .12),
-              blurRadius: 14,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
+        decoration: _cardDecoration(),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: const Color(0xFFEAF4FF),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Center(
-                child: Text('🥑', style: TextStyle(fontSize: 28)),
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Banana & Avocado Mash',
-                    style: GoogleFonts.quicksand(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF1E3A5F),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Text(
-                        'Nutrition',
-                        style: GoogleFonts.quicksand(
-                          fontSize: 12,
-                          color: const Color(0xFF9EBAD4),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Container(
-                        width: 14,
-                        height: 14,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF5AA3E8).withValues(alpha: .2),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        '– 120 Ocalories',
-                        style: GoogleFonts.quicksand(
-                          fontSize: 12,
-                          color: const Color(0xFF9EBAD4),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            _statChip(Icons.local_fire_department_rounded,
+                '${meal.calories} kcal', 'Calories'),
+            _divider(),
+            _statChip(
+                Icons.timer_rounded, '${meal.cookTime} min', 'Cook time'),
+            _divider(),
+            _statChip(Icons.child_care_rounded, meal.age, 'Age'),
           ],
         ),
       ),
     );
   }
 
-  // ============================================================
-  // NUTRITION DETAILS
-  // ============================================================
-  Widget _buildNutritionDetails() {
+  Widget _statChip(IconData icon, String value, String label) {
+    return Column(
+      children: [
+        Icon(icon, color: const Color(0xFF5AA3E8), size: 22),
+        const SizedBox(height: 6),
+        Text(
+          value,
+          style: GoogleFonts.quicksand(
+            fontSize: 14,
+            fontWeight: FontWeight.w800,
+            color: const Color(0xFF1E3A5F),
+          ),
+        ),
+        Text(
+          label,
+          style: GoogleFonts.quicksand(
+            fontSize: 11,
+            color: const Color(0xFF9EBAD4),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _divider() {
+    return Container(
+      height: 40,
+      width: 1,
+      color: const Color(0xFFD4E8F8),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────
+  // NUTRITION CARD
+  // ────────────────────────────────────────────────────────
+  Widget _buildNutritionCard(Meal meal) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
       child: Container(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF89B8E3).withValues(alpha: .12),
-              blurRadius: 14,
-              offset: const Offset(0, 4),
+        decoration: _cardDecoration(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Nutrition Info',
+              style: GoogleFonts.quicksand(
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF1E3A5F),
+              ),
             ),
+            const SizedBox(height: 12),
+            _nutritionRow('Calories per serving', '${meal.calories} kcal'),
+            const SizedBox(height: 8),
+            _nutritionRow('Cook time', '${meal.cookTime} min'),
+            const SizedBox(height: 8),
+            _nutritionRow('Development stage', meal.stage),
           ],
         ),
-        child: Column(
+      ),
+    );
+  }
+
+  Widget _nutritionRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.quicksand(
+            fontSize: 13,
+            color: const Color(0xFF9EBAD4),
+          ),
+        ),
+        Text(
+          value,
+          style: GoogleFonts.quicksand(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFF1E3A5F),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ────────────────────────────────────────────────────────
+  // ALLERGEN CARD
+  // ────────────────────────────────────────────────────────
+  Widget _buildAllergenCard() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: _cardDecoration(),
+        child: Row(
           children: [
-            _nutritionRow('Calorie per 100ml serving', '120 kcal', showArrow: true),
-            const SizedBox(height: 12),
-            _nutritionRow('Prenatal Carrot...', '', showArrow: true),
-            const SizedBox(height: 12),
-            _nutritionRow('Vitamin C, Fiber', ''),
-            const SizedBox(height: 12),
-            Row(
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE4F8DF),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.check_circle_rounded,
+                  color: Color(0xFF7AC96A), size: 22),
+            ),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Allergens',
                   style: GoogleFonts.quicksand(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
                     color: const Color(0xFF9EBAD4),
                   ),
                 ),
-                const SizedBox(width: 8),
                 Text(
-                  'None',
+                  'None identified',
                   style: GoogleFonts.quicksand(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: const Color(0xFF7AC96A),
                   ),
                 ),
-                const SizedBox(width: 6),
-                Container(
-                  width: 18,
-                  height: 18,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF7AC96A).withValues(alpha: .2),
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  child: const Icon(Icons.check_rounded,
-                      size: 12, color: Color(0xFF7AC96A)),
-                ),
               ],
             ),
           ],
@@ -361,209 +410,101 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
     );
   }
 
-  Widget _nutritionRow(String label, String value, {bool showArrow = false}) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            label,
-            style: GoogleFonts.quicksand(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFF9EBAD4),
-            ),
-          ),
-        ),
-        if (value.isNotEmpty)
-          Text(
-            value,
-            style: GoogleFonts.quicksand(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF1E3A5F),
-            ),
-          ),
-        if (showArrow)
-          const Icon(Icons.chevron_right_rounded,
-              color: Color(0xFF9EBAD4), size: 20),
-      ],
-    );
-  }
-
-  // ============================================================
-  // ACTION BUTTONS
-  // ============================================================
-  Widget _buildActionButtons() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-      child: Row(
-        children: [
-          // Edit Portion
-          Expanded(
-            child: Container(
-              height: 54,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF7BB8E8), Color(0xFF5AA3E8)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(28),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF5AA3E8).withValues(alpha: .35),
-                    blurRadius: 12,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: Center(
-                child: Text(
-                  'Edit portion',
-                  style: GoogleFonts.quicksand(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          // Add to cart
-          Expanded(
-            child: Container(
-              height: 54,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(color: const Color(0xFFCCE4F7)),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF89B8E3).withValues(alpha: .12),
-                    blurRadius: 10,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.lock_rounded,
-                      color: Color(0xFF5AA3E8), size: 18),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Add to cart',
-                    style: GoogleFonts.quicksand(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF1E3A5F),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+  // ────────────────────────────────────────────────────────
+  // BOTTOM BAR – quantity stepper + add to cart
+  // ────────────────────────────────────────────────────────
+  Widget _buildBottomBar(Meal meal) {
+    final totalPrice = meal.price * _quantity;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF89B8E3).withValues(alpha: .15),
+            blurRadius: 16,
+            offset: const Offset(0, -4),
           ),
         ],
       ),
-    );
-  }
-
-  // ============================================================
-  // ORDER SUMMARY ROW
-  // ============================================================
-  Widget _buildOrderSummary() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF89B8E3).withValues(alpha: .12),
-              blurRadius: 12,
-              offset: const Offset(0, 3),
+      child: Row(
+        children: [
+          // Quantity stepper
+          Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            decoration: BoxDecoration(
+              color: const Color(0xFFEAF4FF),
+              borderRadius: BorderRadius.circular(14),
             ),
-          ],
-        ),
-        child: Row(
-          children: [
-            // Quantity control
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'TWO',
-                  style: GoogleFonts.quicksand(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF9EBAD4),
-                  ),
-                ),
-                Text(
-                  'Meals',
-                  style: GoogleFonts.quicksand(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF1E3A5F),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(width: 24),
-            // Price
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'AMOUNT',
-                  style: GoogleFonts.quicksand(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF9EBAD4),
-                  ),
-                ),
-                Text(
-                  '€ 12',
-                  style: GoogleFonts.quicksand(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: const Color(0xFF1E3A5F),
-                  ),
-                ),
-              ],
-            ),
-            const Spacer(),
-            // Quantity stepper
-            Row(
+            child: Row(
               children: [
                 _stepperBtn(
-                  icon: Icons.remove,
+                  icon: Icons.remove_rounded,
                   onTap: () {
                     if (_quantity > 1) setState(() => _quantity--);
                   },
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
                   child: Text(
                     '$_quantity',
                     style: GoogleFonts.quicksand(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
                       color: const Color(0xFF1E3A5F),
                     ),
                   ),
                 ),
                 _stepperBtn(
-                  icon: Icons.add,
+                  icon: Icons.add_rounded,
                   onTap: () => setState(() => _quantity++),
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+          const SizedBox(width: 14),
+          // Add to cart button
+          Expanded(
+            child: GestureDetector(
+              onTap: _addToCart,
+              child: Container(
+                height: 54,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF7BB8E8), Color(0xFF5AA3E8)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF5AA3E8).withValues(alpha: .4),
+                      blurRadius: 12,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.shopping_cart_rounded,
+                        color: Colors.white, size: 20),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Add to Cart  •  €${totalPrice.toStringAsFixed(2)}',
+                      style: GoogleFonts.quicksand(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -572,82 +513,35 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 30,
-        height: 30,
+        width: 36,
+        height: 36,
         decoration: BoxDecoration(
-          color: const Color(0xFFEAF4FF),
-          borderRadius: BorderRadius.circular(8),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF89B8E3).withValues(alpha: .2),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
-        child: Icon(icon, size: 16, color: const Color(0xFF5AA3E8)),
+        child: Icon(icon, size: 18, color: const Color(0xFF5AA3E8)),
       ),
     );
   }
 
-  // ============================================================
-  // ADDRESS CARD
-  // ============================================================
-  Widget _buildAddressCard() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF89B8E3).withValues(alpha: .12),
-              blurRadius: 14,
-              offset: const Offset(0, 4),
-            ),
-          ],
+  BoxDecoration _cardDecoration() {
+    return BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      boxShadow: [
+        BoxShadow(
+          color: const Color(0xFF89B8E3).withValues(alpha: .12),
+          blurRadius: 14,
+          offset: const Offset(0, 4),
         ),
-        child: Row(
-          children: [
-            Container(
-              width: 46,
-              height: 46,
-              decoration: BoxDecoration(
-                color: const Color(0xFFD4E8F8),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(14),
-                child: Image.asset(
-                  'assets/img/cart_header.png',
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Anna Johnson . Bergstraat 32,',
-                    style: GoogleFonts.quicksand(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF1E3A5F),
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '1000 Brussels',
-                    style: GoogleFonts.quicksand(
-                      fontSize: 13,
-                      color: const Color(0xFF9EBAD4),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(Icons.keyboard_arrow_down_rounded,
-                color: Color(0xFF5AA3E8), size: 24),
-          ],
-        ),
-      ),
+      ],
     );
   }
 }

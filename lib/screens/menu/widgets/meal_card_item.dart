@@ -16,7 +16,7 @@ class MealCardItem extends StatelessWidget {
         Navigator.of(context).push(
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) =>
-                const MealDetailScreen(),
+                MealDetailScreen(meal: meal),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
               return SlideTransition(

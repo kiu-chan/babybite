@@ -5,16 +5,17 @@ import '../models/cart_item.dart';
 const _kPrimary = Color(0xFF7EB8E8);
 const _kSoftBlue = Color(0xFFD4E8F8);
 const _kDarkBlue = Color(0xFF2C3E6B);
-const _kGreyText = Color(0xFF8DA5C4);
 
 class CartItemWidget extends StatelessWidget {
   final CartItem item;
   final VoidCallback onDelete;
+  final ValueChanged<int>? onQuantityChanged;
 
   const CartItemWidget({
     super.key,
     required this.item,
     required this.onDelete,
+    this.onQuantityChanged,
   });
 
   @override
@@ -22,15 +23,13 @@ class CartItemWidget extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            color: _kSoftBlue,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Center(
-            child: Text(item.emoji, style: const TextStyle(fontSize: 30)),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Image.asset(
+            item.imagePath,
+            width: 56,
+            height: 56,
+            fit: BoxFit.cover,
           ),
         ),
         const SizedBox(width: 12),
@@ -70,18 +69,34 @@ class CartItemWidget extends StatelessWidget {
                     ),
                 ],
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 6),
               Row(
                 children: [
-                  Expanded(
+                  // Quantity stepper
+                  _qtyBtn(
+                    icon: Icons.remove_rounded,
+                    onTap: () =>
+                        onQuantityChanged?.call(item.quantity - 1),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Text(
-                      item.subtitle,
-                      style:
-                          GoogleFonts.quicksand(fontSize: 12, color: _kGreyText),
+                      '${item.quantity}',
+                      style: GoogleFonts.quicksand(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: _kDarkBlue,
+                      ),
                     ),
                   ),
+                  _qtyBtn(
+                    icon: Icons.add_rounded,
+                    onTap: () =>
+                        onQuantityChanged?.call(item.quantity + 1),
+                  ),
+                  const Spacer(),
                   Text(
-                    item.priceLabel,
+                    item.totalPriceLabel,
                     style: GoogleFonts.quicksand(
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
@@ -111,6 +126,21 @@ class CartItemWidget extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _qtyBtn({required IconData icon, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 28,
+        height: 28,
+        decoration: BoxDecoration(
+          color: _kSoftBlue,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, size: 15, color: _kDarkBlue),
+      ),
     );
   }
 }

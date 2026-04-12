@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'food_tracker_screen.dart';
-import 'models/cart_item.dart';
+import '../../services/cart_service.dart';
 import 'models/delivery_address.dart';
 import 'widgets/cart_item_widget.dart';
 import 'widgets/address_card.dart';
+import 'checkout_screen.dart';
 
 const _kPrimary = Color(0xFF7EB8E8);
 const _kSoftBlue = Color(0xFFD4E8F8);
 const _kDarkBlue = Color(0xFF2C3E6B);
 const _kGreyText = Color(0xFF8DA5C4);
-const _kDeliveryFee = 1.50;
 
 class OrdersPage extends StatefulWidget {
   const OrdersPage({super.key});
@@ -20,21 +19,7 @@ class OrdersPage extends StatefulWidget {
 }
 
 class _OrdersPageState extends State<OrdersPage> {
-  final List<CartItem> _items = [
-    const CartItem(
-      emoji: '🥣',
-      name: 'Spinach & Potato Puree',
-      subtitle: 'Spinach & potato porridge',
-      priceValue: 5.50,
-    ),
-    const CartItem(
-      emoji: '🍲',
-      name: 'Mashed Sweet Potato & Carrot',
-      subtitle: 'Sweet potato & mashed carrot',
-      priceValue: 5.00,
-      timeBadge: '8m',
-    ),
-  ];
+  final _cart = CartService.instance;
 
   DeliveryAddress _address = DeliveryAddress(
     recipientName: 'Anna Johnson',
@@ -44,12 +29,21 @@ class _OrdersPageState extends State<OrdersPage> {
     note: '',
   );
 
-  double get _subtotal =>
-      _items.fold(0, (sum, item) => sum + item.priceValue);
+  @override
+  void initState() {
+    super.initState();
+    _cart.addListener(_onCartChanged);
+  }
 
-  double get _total => _subtotal + _kDeliveryFee;
+  void _onCartChanged() => setState(() {});
 
-  Future<void> _confirmDelete(int index) async {
+  @override
+  void dispose() {
+    _cart.removeListener(_onCartChanged);
+    super.dispose();
+  }
+
+  Future<void> _confirmDelete(String mealId, String mealName) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -62,7 +56,7 @@ class _OrdersPageState extends State<OrdersPage> {
           ),
         ),
         content: Text(
-          'Remove "${_items[index].name}" from your cart?',
+          'Remove "$mealName" from your cart?',
           style: GoogleFonts.quicksand(fontSize: 14, color: _kGreyText),
         ),
         actions: [
@@ -91,13 +85,14 @@ class _OrdersPageState extends State<OrdersPage> {
       ),
     );
     if (confirmed == true) {
-      setState(() => _items.removeAt(index));
+      _cart.removeItem(mealId);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isEmpty = _items.isEmpty;
+    final items = _cart.items;
+    final bool isEmpty = items.isEmpty;
 
     return Container(
       decoration: const BoxDecoration(
@@ -119,7 +114,7 @@ class _OrdersPageState extends State<OrdersPage> {
                     const SizedBox(height: 10),
                     _buildCustomerCard(),
                     const SizedBox(height: 16),
-                    isEmpty ? _buildEmptyCart() : _buildCartItemsCard(),
+                    isEmpty ? _buildEmptyCart() : _buildCartItemsCard(items),
                     if (!isEmpty) ...[
                       const SizedBox(height: 16),
                       _buildSummaryCard(),
@@ -265,18 +260,20 @@ class _OrdersPageState extends State<OrdersPage> {
   }
 
   // ---------- CART ITEMS ----------
-  Widget _buildCartItemsCard() {
+  Widget _buildCartItemsCard(List items) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: _cardDecoration(),
       child: Column(
         children: [
-          for (int i = 0; i < _items.length; i++) ...[
+          for (int i = 0; i < items.length; i++) ...[
             CartItemWidget(
-              item: _items[i],
-              onDelete: () => _confirmDelete(i),
+              item: items[i],
+              onDelete: () => _confirmDelete(items[i].mealId, items[i].name),
+              onQuantityChanged: (qty) =>
+                  _cart.updateQuantity(items[i].mealId, qty),
             ),
-            if (i < _items.length - 1)
+            if (i < items.length - 1)
               const Divider(color: _kSoftBlue, height: 22, thickness: 1),
           ],
         ],
@@ -292,14 +289,15 @@ class _OrdersPageState extends State<OrdersPage> {
       child: Column(
         children: [
           _summaryRow(
-              'Subtotal', '€ ${_subtotal.toStringAsFixed(2)}',
+              'Subtotal', '€ ${_cart.subtotal.toStringAsFixed(2)}',
               highlight: true),
           const Divider(color: _kSoftBlue, height: 22, thickness: 1),
           _summaryRow(
-              'Delivery fee', '€ ${_kDeliveryFee.toStringAsFixed(2)}'),
+              'Delivery fee',
+              '€ ${CartService.deliveryFee.toStringAsFixed(2)}'),
           const Divider(color: _kSoftBlue, height: 22, thickness: 1),
           _summaryRow(
-              'Total', '€ ${_total.toStringAsFixed(2)}',
+              'Total', '€ ${_cart.total.toStringAsFixed(2)}',
               large: true),
         ],
       ),
@@ -356,14 +354,14 @@ class _OrdersPageState extends State<OrdersPage> {
     );
   }
 
-  // ---------- ORDER BUTTON ----------
+  // ---------- CHECKOUT BUTTON ----------
   Widget _buildOrderButton(BuildContext context) {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) =>
-                const FoodTrackerScreen(),
+                CheckoutScreen(initialAddress: _address),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
               return SlideTransition(
@@ -402,11 +400,11 @@ class _OrdersPageState extends State<OrdersPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.shopping_bag_rounded,
+            const Icon(Icons.arrow_forward_rounded,
                 color: Colors.white, size: 22),
             const SizedBox(width: 10),
             Text(
-              'Place Order',
+              'Proceed to Checkout',
               style: GoogleFonts.quicksand(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,

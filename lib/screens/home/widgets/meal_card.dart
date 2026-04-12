@@ -2,18 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/app_colors.dart';
 import '../../menu/meal_detail_screen.dart';
+import '../../menu/data/meal_data.dart';
 
 class HomeMealCard extends StatelessWidget {
   const HomeMealCard({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Featured meal: Mashed Sweet Potato & Carrot (id: '3')
+    final meal = allMeals.firstWhere(
+      (m) => m.id == '3',
+      orElse: () => allMeals.first,
+    );
+
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) =>
-                const MealDetailScreen(),
+                MealDetailScreen(meal: meal),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
               return SlideTransition(
@@ -77,7 +84,7 @@ class HomeMealCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          'Mashed Sweet Potato\n& Carrot',
+                          meal.name,
                           style: GoogleFonts.fredoka(
                             fontSize: 19,
                             fontWeight: FontWeight.w600,
@@ -96,7 +103,7 @@ class HomeMealCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(999),
                         ),
                         child: Text(
-                          '8m',
+                          meal.age,
                           style: GoogleFonts.quicksand(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
@@ -111,7 +118,7 @@ class HomeMealCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '🥕 2 ing • 8oz',
+                        '${meal.calories} kcal  •  ${meal.cookTime} min',
                         style: GoogleFonts.quicksand(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
@@ -120,7 +127,7 @@ class HomeMealCard extends StatelessWidget {
                       ),
                       Row(
                         children: List.generate(
-                          5,
+                          meal.rating.floor(),
                           (_) => const Icon(
                             Icons.star_rounded,
                             size: 16,
