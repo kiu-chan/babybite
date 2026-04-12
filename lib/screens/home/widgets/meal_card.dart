@@ -24,7 +24,8 @@ class RecommendedMealsList extends StatelessWidget {
           child: Center(
             child: Column(
               children: [
-                const Text('🍼', style: TextStyle(fontSize: 36)),
+                const Icon(Icons.no_meals_rounded,
+                    size: 36, color: AppColors.placeholder),
                 const SizedBox(height: 10),
                 Text(
                   'No meals for this age yet',
@@ -42,7 +43,7 @@ class RecommendedMealsList extends StatelessWidget {
     }
 
     return SizedBox(
-      height: 230,
+      height: 190,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -57,18 +58,6 @@ class RecommendedMealsList extends StatelessWidget {
 class _MealChip extends StatelessWidget {
   final Meal meal;
   const _MealChip({required this.meal});
-
-  static const _gradients = [
-    [Color(0xFFD9ECFB), Color(0xFFECF5FF)],
-    [Color(0xFFD9F8EC), Color(0xFFECFFF5)],
-    [Color(0xFFFFF3D9), Color(0xFFFFFAEC)],
-    [Color(0xFFEED9FB), Color(0xFFF8ECFF)],
-  ];
-
-  List<Color> get _gradient {
-    final idx = int.tryParse(meal.id) ?? 0;
-    return _gradients[idx % _gradients.length];
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,98 +95,88 @@ class _MealChip extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Emoji area
+            // Image area
             ClipRRect(
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(20)),
-              child: Container(
-                height: 100,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: _gradient,
-                  ),
-                ),
-                child: Stack(
-                  children: [
-                    Center(
-                      child: Text(
-                        meal.emoji,
-                        style: const TextStyle(fontSize: 48),
-                      ),
-                    ),
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: .85),
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                        child: Text(
-                          meal.age,
-                          style: GoogleFonts.quicksand(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.blueMid,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            // Info
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Stack(
                 children: [
-                  Text(
-                    meal.name,
-                    style: GoogleFonts.fredoka(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.blueDeep,
-                      height: 1.2,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                  Image.asset(
+                    meal.imagePath,
+                    height: 100,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
                   ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(Icons.local_fire_department_rounded,
-                          size: 12, color: const Color(0xFFF5B638)),
-                      const SizedBox(width: 3),
-                      Text(
-                        '${meal.cookTime}m',
-                        style: GoogleFonts.quicksand(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.blueMid,
-                        ),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: .85),
+                        borderRadius: BorderRadius.circular(999),
                       ),
-                      const Spacer(),
-                      const Icon(Icons.star_rounded,
-                          size: 12, color: AppColors.star),
-                      const SizedBox(width: 2),
-                      Text(
-                        meal.rating.toStringAsFixed(1),
+                      child: Text(
+                        meal.age,
                         style: GoogleFonts.quicksand(
-                          fontSize: 11,
+                          fontSize: 10,
                           fontWeight: FontWeight.w700,
                           color: AppColors.blueMid,
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ],
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      meal.name,
+                      style: GoogleFonts.fredoka(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.blueDeep,
+                        height: 1.2,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const Spacer(),
+                    Row(
+                      children: [
+                        Icon(Icons.local_fire_department_rounded,
+                            size: 12, color: const Color(0xFFF5B638)),
+                        const SizedBox(width: 3),
+                        Text(
+                          '${meal.cookTime}m',
+                          style: GoogleFonts.quicksand(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.blueMid,
+                          ),
+                        ),
+                        const Spacer(),
+                        const Icon(Icons.star_rounded,
+                            size: 12, color: AppColors.star),
+                        const SizedBox(width: 2),
+                        Text(
+                          meal.rating.toStringAsFixed(1),
+                          style: GoogleFonts.quicksand(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.blueMid,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

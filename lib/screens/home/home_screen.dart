@@ -43,9 +43,9 @@ class _HomeScreenState extends State<HomeScreen> {
       filtered =
           allMeals.where((m) => m.ageInMonths == targetMonths).toList();
     }
-    // Sort by rating descending, take top 8
+    // Sort by rating descending, take top 3
     filtered.sort((a, b) => b.rating.compareTo(a.rating));
-    return filtered.take(8).toList();
+    return filtered.take(3).toList();
   }
 
   int _parseAge(String age) {
@@ -65,7 +65,12 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final meals = _recommendedMeals;
 
-    return SingleChildScrollView(
+    return Container(
+      color: const Color(0xFFEAF4FF),
+      constraints: BoxConstraints(
+        minHeight: MediaQuery.of(context).size.height,
+      ),
+      child: SingleChildScrollView(
       padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,6 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 24),
         ],
       ),
+    ),
     );
   }
 }
