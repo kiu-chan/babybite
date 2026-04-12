@@ -7,32 +7,37 @@ enum OrderStatus {
   preparing,
   outForDelivery,
   delivered,
+  cancelled,
 }
 
 extension OrderStatusX on OrderStatus {
   String get label {
     switch (this) {
       case OrderStatus.received:
-        return 'Đã nhận đơn hàng';
+        return 'Order Received';
       case OrderStatus.preparing:
-        return 'Đang chuẩn bị thức ăn';
+        return 'Preparing Food';
       case OrderStatus.outForDelivery:
-        return 'Đang đi giao hàng';
+        return 'Out for Delivery';
       case OrderStatus.delivered:
-        return 'Đã giao hàng thành công';
+        return 'Delivered';
+      case OrderStatus.cancelled:
+        return 'Cancelled';
     }
   }
 
   String get sublabel {
     switch (this) {
       case OrderStatus.received:
-        return 'Đơn hàng đã được xác nhận';
+        return 'Your order has been confirmed';
       case OrderStatus.preparing:
-        return 'Bếp đang chế biến món ăn cho bé';
+        return 'Our kitchen is preparing your baby\'s meal';
       case OrderStatus.outForDelivery:
-        return 'Shipper đang trên đường đến bạn';
+        return 'Your order is on the way';
       case OrderStatus.delivered:
-        return 'Chúc bé ngon miệng!';
+        return 'Enjoy your meal!';
+      case OrderStatus.cancelled:
+        return 'Your order has been cancelled';
     }
   }
 
@@ -46,8 +51,13 @@ extension OrderStatusX on OrderStatus {
         return 2;
       case OrderStatus.delivered:
         return 3;
+      case OrderStatus.cancelled:
+        return -1;
     }
   }
+
+  bool get isFinal =>
+      this == OrderStatus.delivered || this == OrderStatus.cancelled;
 }
 
 class Order {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/app_colors.dart';
+import '../help_support_screen.dart';
+import '../about_screen.dart';
 
 class SettingsSection extends StatelessWidget {
   const SettingsSection({super.key});
@@ -8,10 +10,20 @@ class SettingsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = [
-      (icon: Icons.notifications_none_rounded, label: 'Notifications', hasToggle: true),
-      (icon: Icons.lock_outline_rounded, label: 'Privacy & Security', hasToggle: false),
-      (icon: Icons.help_outline_rounded, label: 'Help & Support', hasToggle: false),
-      (icon: Icons.info_outline_rounded, label: 'About BabyBite', hasToggle: false),
+      _SettingsItemData(
+        icon: Icons.help_outline_rounded,
+        label: 'Help & Support',
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => const HelpSupportScreen(),
+        )),
+      ),
+      _SettingsItemData(
+        icon: Icons.info_outline_rounded,
+        label: 'About BabyBite',
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => const AboutScreen(),
+        )),
+      ),
     ];
 
     return Padding(
@@ -34,10 +46,7 @@ class SettingsSection extends StatelessWidget {
             final item = items[i];
             return Column(
               children: [
-                _SettingsItem(
-                    icon: item.icon,
-                    label: item.label,
-                    hasToggle: item.hasToggle),
+                _SettingsItem(icon: item.icon, label: item.label, onTap: item.onTap),
                 if (i < items.length - 1)
                   const Divider(
                     height: 1,
@@ -54,23 +63,27 @@ class SettingsSection extends StatelessWidget {
   }
 }
 
-class _SettingsItem extends StatefulWidget {
+class _SettingsItemData {
   final IconData icon;
   final String label;
-  final bool hasToggle;
+  final VoidCallback onTap;
+  const _SettingsItemData({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+}
+
+class _SettingsItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
 
   const _SettingsItem({
     required this.icon,
     required this.label,
-    required this.hasToggle,
+    required this.onTap,
   });
-
-  @override
-  State<_SettingsItem> createState() => _SettingsItemState();
-}
-
-class _SettingsItemState extends State<_SettingsItem> {
-  bool _on = true;
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +91,7 @@ class _SettingsItemState extends State<_SettingsItem> {
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
-        onTap: widget.hasToggle ? null : () {},
+        onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Row(
@@ -90,12 +103,12 @@ class _SettingsItemState extends State<_SettingsItem> {
                   color: const Color(0xFFD6EDFB),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(widget.icon, size: 18, color: AppColors.blueAccent),
+                child: Icon(icon, size: 18, color: AppColors.blueAccent),
               ),
               const SizedBox(width: 14),
               Expanded(
                 child: Text(
-                  widget.label,
+                  label,
                   style: GoogleFonts.quicksand(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -103,18 +116,8 @@ class _SettingsItemState extends State<_SettingsItem> {
                   ),
                 ),
               ),
-              if (widget.hasToggle)
-                Switch(
-                  value: _on,
-                  onChanged: (v) => setState(() => _on = v),
-                  activeThumbColor: AppColors.blueAccent,
-                  activeTrackColor: const Color(0xFFB8DFFB),
-                  inactiveThumbColor: AppColors.placeholder,
-                  inactiveTrackColor: AppColors.cardBorder,
-                )
-              else
-                const Icon(Icons.chevron_right_rounded,
-                    color: AppColors.placeholder, size: 22),
+              const Icon(Icons.chevron_right_rounded,
+                  color: AppColors.placeholder, size: 22),
             ],
           ),
         ),

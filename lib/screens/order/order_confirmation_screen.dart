@@ -418,7 +418,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
                     color: Colors.white, size: 22),
                 const SizedBox(width: 10),
                 Text(
-                  'Theo dõi đơn hàng',
+                  'Track Order',
                   style: GoogleFonts.quicksand(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
@@ -454,7 +454,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
                 const Icon(Icons.home_rounded, color: _kPrimary, size: 20),
                 const SizedBox(width: 8),
                 Text(
-                  'Về trang chủ',
+                  'Back to Home',
                   style: GoogleFonts.quicksand(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,

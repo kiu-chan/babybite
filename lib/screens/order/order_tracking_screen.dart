@@ -86,13 +86,19 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
                   children: [
                     _buildOrderIdCard(order),
                     const SizedBox(height: 20),
-                    _buildTimeline(order),
-                    const SizedBox(height: 20),
+                    if (order.status != OrderStatus.cancelled)
+                      _buildTimeline(order),
+                    if (order.status != OrderStatus.cancelled)
+                      const SizedBox(height: 20),
                     _buildCurrentStatusCard(order),
                     const SizedBox(height: 16),
                     _buildDeliveryInfoCard(order),
                     const SizedBox(height: 16),
                     _buildItemsCard(order),
+                    if (order.status == OrderStatus.received) ...[
+                      const SizedBox(height: 20),
+                      _buildCancelButton(context, order),
+                    ],
                   ],
                 ),
               ),
@@ -178,7 +184,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Đơn hàng',
+                Text('Order',
                     style: GoogleFonts.quicksand(
                         fontSize: 12, color: _kGreyText)),
                 Text(
@@ -208,8 +214,11 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
   }
 
   Widget _statusBadge(OrderStatus status) {
-    final isDelivered = status == OrderStatus.delivered;
-    final color = isDelivered ? _kGreen : _kPrimary;
+    final Color color = status == OrderStatus.delivered
+        ? _kGreen
+        : status == OrderStatus.cancelled
+            ? const Color(0xFFE57373)
+            : _kPrimary;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
@@ -389,23 +398,37 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
   // CURRENT STATUS CARD
   // ────────────────────────────────────────────────────────
   Widget _buildCurrentStatusCard(Order order) {
+    final isCancelled = order.status == OrderStatus.cancelled;
     final isDelivered = order.status == OrderStatus.delivered;
+
+    final Color accent = isCancelled
+        ? const Color(0xFFE57373)
+        : isDelivered
+            ? _kGreen
+            : _kPrimary;
+
+    final List<Color> gradientColors = isCancelled
+        ? [const Color(0xFFFFF0F0), const Color(0xFFFFF5F5)]
+        : isDelivered
+            ? [const Color(0xFFE4F8DF), const Color(0xFFF0FBF0)]
+            : [const Color(0xFFDCEEFB), const Color(0xFFEAF4FF)];
+
+    final IconData statusIcon = isCancelled
+        ? Icons.cancel_rounded
+        : isDelivered
+            ? Icons.check_circle_rounded
+            : Icons.local_shipping_rounded;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: isDelivered
-              ? [const Color(0xFFE4F8DF), const Color(0xFFF0FBF0)]
-              : [const Color(0xFFDCEEFB), const Color(0xFFEAF4FF)],
+          colors: gradientColors,
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isDelivered
-              ? _kGreen.withValues(alpha: .3)
-              : _kPrimary.withValues(alpha: .3),
-        ),
+        border: Border.all(color: accent.withValues(alpha: .3)),
       ),
       child: Row(
         children: [
@@ -413,18 +436,10 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
             width: 50,
             height: 50,
             decoration: BoxDecoration(
-              color: isDelivered
-                  ? _kGreen.withValues(alpha: .2)
-                  : _kPrimary.withValues(alpha: .2),
+              color: accent.withValues(alpha: .2),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              isDelivered
-                  ? Icons.check_circle_rounded
-                  : Icons.local_shipping_rounded,
-              color: isDelivered ? _kGreen : _kPrimary,
-              size: 26,
-            ),
+            child: Icon(statusIcon, color: accent, size: 26),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -432,7 +447,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Trạng thái hiện tại',
+                  'Current Status',
                   style: GoogleFonts.quicksand(
                       fontSize: 11, color: _kGreyText),
                 ),
@@ -441,7 +456,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
                   style: GoogleFonts.quicksand(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
-                    color: isDelivered ? _kGreen : _kDarkBlue,
+                    color: accent,
                   ),
                 ),
                 Text(
@@ -458,6 +473,90 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
   }
 
   // ────────────────────────────────────────────────────────
+  // CANCEL BUTTON
+  // ────────────────────────────────────────────────────────
+  Widget _buildCancelButton(BuildContext context, Order order) {
+    return GestureDetector(
+      onTap: () async {
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20)),
+            title: Text(
+              'Cancel order?',
+              style: GoogleFonts.fredoka(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: _kDarkBlue,
+              ),
+            ),
+            content: Text(
+              'Are you sure you want to cancel order #${order.orderId}? This cannot be undone.',
+              style: GoogleFonts.quicksand(
+                  fontSize: 14, color: _kGreyText),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: Text(
+                  'Keep order',
+                  style: GoogleFonts.quicksand(
+                      fontWeight: FontWeight.w700, color: _kPrimary),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: Text(
+                  'Cancel order',
+                  style: GoogleFonts.quicksand(
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFFE57373)),
+                ),
+              ),
+            ],
+          ),
+        );
+        if (confirmed == true && context.mounted) {
+          OrderService.instance.cancelOrder(order.orderId);
+        }
+      },
+      child: Container(
+        width: double.infinity,
+        height: 52,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: const Color(0xFFFFCDD2)),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFE57373).withValues(alpha: .15),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.cancel_outlined,
+                color: Color(0xFFE57373), size: 20),
+            const SizedBox(width: 8),
+            Text(
+              'Cancel Order',
+              style: GoogleFonts.quicksand(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFFE57373),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────
   // DELIVERY INFO
   // ────────────────────────────────────────────────────────
   Widget _buildDeliveryInfoCard(Order order) {
@@ -468,7 +567,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Thông tin giao hàng',
+            'Delivery Info',
             style: GoogleFonts.quicksand(
               fontSize: 14,
               fontWeight: FontWeight.w800,
@@ -476,18 +575,18 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
             ),
           ),
           const SizedBox(height: 12),
-          _infoRow(Icons.home_rounded, 'Địa chỉ',
+          _infoRow(Icons.home_rounded, 'Address',
               '${order.address.street}, ${order.address.cityPostcode}'),
           const SizedBox(height: 8),
           _infoRow(
             order.deliveryTime.isAsap
                 ? Icons.bolt_rounded
                 : Icons.calendar_month_rounded,
-            'Thời gian',
+            'Time',
             order.deliveryTime.displayLabel,
           ),
           const SizedBox(height: 8),
-          _infoRow(Icons.person_rounded, 'Người nhận',
+          _infoRow(Icons.person_rounded, 'Recipient',
               order.address.recipientName),
         ],
       ),
@@ -541,7 +640,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Món ăn đã đặt',
+            'Items Ordered',
             style: GoogleFonts.quicksand(
               fontSize: 14,
               fontWeight: FontWeight.w800,
@@ -593,7 +692,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Tổng cộng',
+                'Total',
                 style: GoogleFonts.quicksand(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,

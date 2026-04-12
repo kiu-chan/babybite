@@ -93,7 +93,7 @@ class _MyOrdersButton extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Material(
-        color: Colors.white,
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(20),
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
@@ -101,6 +101,7 @@ class _MyOrdersButton extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
+              color: Colors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: const Color(0xFFEAF2FB)),
               boxShadow: [
@@ -126,7 +127,7 @@ class _MyOrdersButton extends StatelessWidget {
                 const SizedBox(width: 14),
                 Expanded(
                   child: Text(
-                    'Đơn hàng của tôi',
+                    'My Orders',
                     style: GoogleFonts.quicksand(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -143,7 +144,7 @@ class _MyOrdersButton extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      '$activeCount đang giao',
+                      '$activeCount delivering',
                       style: GoogleFonts.quicksand(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,

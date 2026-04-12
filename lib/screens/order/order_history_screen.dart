@@ -9,7 +9,73 @@ const _kSoftBlue = Color(0xFFD4E8F8);
 const _kDarkBlue = Color(0xFF2C3E6B);
 const _kGreyText = Color(0xFF8DA5C4);
 const _kGreen = Color(0xFF7AC96A);
+const _kRed = Color(0xFFE57373);
 
+// ────────────────────────────────────────────────────────
+// TAB DEFINITION
+// ────────────────────────────────────────────────────────
+enum _Tab {
+  all,
+  active,
+  delivered,
+  cancelled;
+
+  String get label {
+    switch (this) {
+      case _Tab.all:
+        return 'All';
+      case _Tab.active:
+        return 'Active';
+      case _Tab.delivered:
+        return 'Delivered';
+      case _Tab.cancelled:
+        return 'Cancelled';
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case _Tab.all:
+        return Icons.receipt_long_rounded;
+      case _Tab.active:
+        return Icons.local_shipping_rounded;
+      case _Tab.delivered:
+        return Icons.check_circle_rounded;
+      case _Tab.cancelled:
+        return Icons.cancel_rounded;
+    }
+  }
+
+  Color get color {
+    switch (this) {
+      case _Tab.all:
+        return _kPrimary;
+      case _Tab.active:
+        return _kPrimary;
+      case _Tab.delivered:
+        return _kGreen;
+      case _Tab.cancelled:
+        return _kRed;
+    }
+  }
+
+  bool matches(OrderStatus status) {
+    switch (this) {
+      case _Tab.all:
+        return true;
+      case _Tab.active:
+        return !status.isFinal;
+      case _Tab.delivered:
+        return status == OrderStatus.delivered;
+      case _Tab.cancelled:
+        return status == OrderStatus.cancelled;
+    }
+  }
+}
+
+// ────────────────────────────────────────────────────────
+// SCREEN
+// ────────────────────────────────────────────────────────
 class OrderHistoryScreen extends StatefulWidget {
   const OrderHistoryScreen({super.key});
 
@@ -17,10 +83,15 @@ class OrderHistoryScreen extends StatefulWidget {
   State<OrderHistoryScreen> createState() => _OrderHistoryScreenState();
 }
 
-class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
+class _OrderHistoryScreenState extends State<OrderHistoryScreen>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: _Tab.values.length, vsync: this);
+    _tabController.addListener(() => setState(() {}));
     OrderService.instance.addListener(_onChanged);
   }
 
@@ -28,30 +99,40 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
 
   @override
   void dispose() {
+    _tabController.dispose();
     OrderService.instance.removeListener(_onChanged);
     super.dispose();
   }
 
+  List<Order> _filtered(_Tab tab) {
+    return OrderService.instance.orders
+        .where((o) => tab.matches(o.status))
+        .toList();
+  }
+
+  int _countFor(_Tab tab) => _filtered(tab).length;
+
   @override
   Widget build(BuildContext context) {
-    final orders = OrderService.instance.orders;
-
     return Scaffold(
       backgroundColor: const Color(0xFFEAF5FF),
       body: SafeArea(
         child: Column(
           children: [
             _buildHeader(context),
+            const SizedBox(height: 14),
+            _buildTabBar(),
+            const SizedBox(height: 4),
             Expanded(
-              child: orders.isEmpty
-                  ? _buildEmpty()
-                  : ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-                      itemCount: orders.length,
-                      separatorBuilder: (_, _) =>
-                          const SizedBox(height: 12),
-                      itemBuilder: (_, i) => _OrderCard(order: orders[i]),
-                    ),
+              child: TabBarView(
+                controller: _tabController,
+                children: _Tab.values
+                    .map((tab) => _OrderList(
+                          orders: _filtered(tab),
+                          tab: tab,
+                        ))
+                    .toList(),
+              ),
             ),
           ],
         ),
@@ -59,6 +140,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
     );
   }
 
+  // ── HEADER ──────────────────────────────────────────────
   Widget _buildHeader(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
@@ -86,7 +168,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
           ),
           Expanded(
             child: Text(
-              'Đơn hàng của tôi',
+              'My Orders',
               textAlign: TextAlign.center,
               style: GoogleFonts.fredoka(
                 fontSize: 26,
@@ -101,7 +183,146 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
     );
   }
 
+  // ── TAB BAR ─────────────────────────────────────────────
+  Widget _buildTabBar() {
+    return SizedBox(
+      height: 44,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        itemCount: _Tab.values.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        itemBuilder: (_, i) {
+          final tab = _Tab.values[i];
+          final isSelected = _tabController.index == i;
+          final count = _countFor(tab);
+          return _TabChip(
+            tab: tab,
+            isSelected: isSelected,
+            count: count,
+            onTap: () => _tabController.animateTo(i),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ────────────────────────────────────────────────────────
+// TAB CHIP
+// ────────────────────────────────────────────────────────
+class _TabChip extends StatelessWidget {
+  final _Tab tab;
+  final bool isSelected;
+  final int count;
+  final VoidCallback onTap;
+
+  const _TabChip({
+    required this.tab,
+    required this.isSelected,
+    required this.count,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = tab.color;
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
+        decoration: BoxDecoration(
+          color: isSelected ? color : Colors.white,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: isSelected ? color : _kSoftBlue,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: color.withValues(alpha: .3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  )
+                ]
+              : [],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              tab.icon,
+              size: 15,
+              color: isSelected ? Colors.white : _kGreyText,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              tab.label,
+              style: GoogleFonts.quicksand(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: isSelected ? Colors.white : _kGreyText,
+              ),
+            ),
+            if (count > 0) ...[
+              const SizedBox(width: 6),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? Colors.white.withValues(alpha: .3)
+                      : color.withValues(alpha: .15),
+                  borderRadius: BorderRadius.circular(99),
+                ),
+                child: Text(
+                  '$count',
+                  style: GoogleFonts.quicksand(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: isSelected ? Colors.white : color,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ────────────────────────────────────────────────────────
+// ORDER LIST (per tab)
+// ────────────────────────────────────────────────────────
+class _OrderList extends StatelessWidget {
+  final List<Order> orders;
+  final _Tab tab;
+
+  const _OrderList({required this.orders, required this.tab});
+
+  @override
+  Widget build(BuildContext context) {
+    if (orders.isEmpty) return _buildEmpty();
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+      itemCount: orders.length,
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
+      itemBuilder: (_, i) => _OrderCard(order: orders[i]),
+    );
+  }
+
   Widget _buildEmpty() {
+    final color = tab.color;
+    final (String title, String sub) = switch (tab) {
+      _Tab.all => ('No orders yet', 'Place your first meal order for your little one!'),
+      _Tab.active => ('No active orders', 'Your ongoing orders will appear here'),
+      _Tab.delivered => ('No delivered orders', 'Completed orders will appear here'),
+      _Tab.cancelled => ('No cancelled orders', 'Cancelled orders will appear here'),
+    };
+
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -109,16 +330,15 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
           Container(
             width: 80,
             height: 80,
-            decoration: const BoxDecoration(
-              color: _kSoftBlue,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: .12),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.receipt_long_rounded,
-                size: 42, color: _kPrimary),
+            child: Icon(tab.icon, size: 38, color: color),
           ),
           const SizedBox(height: 16),
           Text(
-            'Chưa có đơn hàng nào',
+            title,
             style: GoogleFonts.quicksand(
               fontSize: 16,
               fontWeight: FontWeight.w800,
@@ -126,9 +346,13 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
             ),
           ),
           const SizedBox(height: 6),
-          Text(
-            'Hãy đặt món ăn đầu tiên cho bé!',
-            style: GoogleFonts.quicksand(fontSize: 13, color: _kGreyText),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Text(
+              sub,
+              style: GoogleFonts.quicksand(fontSize: 13, color: _kGreyText),
+              textAlign: TextAlign.center,
+            ),
           ),
         ],
       ),
@@ -147,7 +371,12 @@ class _OrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDelivered = order.status == OrderStatus.delivered;
-    final statusColor = isDelivered ? _kGreen : _kPrimary;
+    final isCancelled = order.status == OrderStatus.cancelled;
+    final statusColor = isDelivered
+        ? _kGreen
+        : isCancelled
+            ? _kRed
+            : _kPrimary;
 
     return Container(
       decoration: BoxDecoration(
@@ -163,7 +392,6 @@ class _OrderCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Top row
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -172,11 +400,18 @@ class _OrderCard extends StatelessWidget {
                   width: 46,
                   height: 46,
                   decoration: BoxDecoration(
-                    color: _kSoftBlue,
+                    color: statusColor.withValues(alpha: .12),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: const Icon(Icons.receipt_rounded,
-                      color: _kPrimary, size: 22),
+                  child: Icon(
+                    isCancelled
+                        ? Icons.cancel_rounded
+                        : isDelivered
+                            ? Icons.check_circle_rounded
+                            : Icons.receipt_rounded,
+                    color: statusColor,
+                    size: 22,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -208,7 +443,6 @@ class _OrderCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
             child: Row(
               children: [
-                // Stacked images
                 SizedBox(
                   height: 36,
                   width: _stackWidth(order.items.length),
@@ -258,23 +492,21 @@ class _OrderCard extends StatelessWidget {
               ],
             ),
           ),
-          // Divider + action
           const SizedBox(height: 12),
           const Divider(height: 1, color: _kSoftBlue),
-          // Track / View button
           Material(
             color: Colors.transparent,
             child: InkWell(
-              borderRadius: const BorderRadius.vertical(
-                  bottom: Radius.circular(20)),
+              borderRadius:
+                  const BorderRadius.vertical(bottom: Radius.circular(20)),
               onTap: () {
                 Navigator.of(context).push(
                   PageRouteBuilder(
-                    pageBuilder: (context, animation, _) => OrderTrackingScreen(
-                        orderId: order.orderId, fromHistory: true),
+                    pageBuilder: (context, animation, _) =>
+                        OrderTrackingScreen(
+                            orderId: order.orderId, fromHistory: true),
                     transitionsBuilder:
-                        (context, animation, _, child) =>
-                            SlideTransition(
+                        (context, animation, _, child) => SlideTransition(
                       position: Tween<Offset>(
                         begin: const Offset(1.0, 0.0),
                         end: Offset.zero,
@@ -295,15 +527,17 @@ class _OrderCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      isDelivered
-                          ? Icons.visibility_rounded
-                          : Icons.local_shipping_rounded,
+                      isCancelled
+                          ? Icons.cancel_outlined
+                          : isDelivered
+                              ? Icons.visibility_rounded
+                              : Icons.local_shipping_rounded,
                       color: statusColor,
                       size: 18,
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      isDelivered ? 'Xem chi tiết' : 'Theo dõi đơn hàng',
+                      isCancelled || isDelivered ? 'View Details' : 'Track Order',
                       style: GoogleFonts.quicksand(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
@@ -337,7 +571,12 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDelivered = status == OrderStatus.delivered;
-    final color = isDelivered ? _kGreen : _kPrimary;
+    final isCancelled = status == OrderStatus.cancelled;
+    final color = isDelivered
+        ? _kGreen
+        : isCancelled
+            ? _kRed
+            : _kPrimary;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -352,10 +591,7 @@ class _StatusBadge extends StatelessWidget {
           Container(
             width: 6,
             height: 6,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(width: 5),
           Text(

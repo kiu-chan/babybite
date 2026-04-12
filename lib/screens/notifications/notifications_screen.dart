@@ -115,7 +115,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ),
           Expanded(
             child: Text(
-              'Thông báo',
+              'Notifications',
               textAlign: TextAlign.center,
               style: GoogleFonts.fredoka(
                 fontSize: 26,
@@ -144,7 +144,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 ),
                 child: Center(
                   child: Text(
-                    'Đọc tất cả',
+                    'Mark all read',
                     style: GoogleFonts.quicksand(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -178,7 +178,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Chưa có thông báo',
+            'No notifications yet',
             style: GoogleFonts.quicksand(
               fontSize: 16,
               fontWeight: FontWeight.w800,
@@ -187,7 +187,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Thông báo đơn hàng sẽ xuất hiện ở đây',
+            'Order updates will appear here',
             style: GoogleFonts.quicksand(fontSize: 13, color: _kGreyText),
           ),
         ],
