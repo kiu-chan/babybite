@@ -1,138 +1,198 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/app_colors.dart';
+import '../../menu/models/meal.dart';
 import '../../menu/meal_detail_screen.dart';
-import '../../menu/data/meal_data.dart';
 
-class HomeMealCard extends StatelessWidget {
-  const HomeMealCard({super.key});
+class RecommendedMealsList extends StatelessWidget {
+  final List<Meal> meals;
+
+  const RecommendedMealsList({super.key, required this.meals});
 
   @override
   Widget build(BuildContext context) {
-    // Featured meal: Mashed Sweet Potato & Carrot (id: '3')
-    final meal = allMeals.firstWhere(
-      (m) => m.id == '3',
-      orElse: () => allMeals.first,
-    );
-
-    return GestureDetector(
-      onTap: () {
-        Navigator.of(context).push(
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                MealDetailScreen(meal: meal),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              return SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(1.0, 0.0),
-                  end: Offset.zero,
-                ).animate(CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOutCubic,
-                )),
-                child: child,
-              );
-            },
-            transitionDuration: const Duration(milliseconds: 350),
+    if (meals.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 28),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.cardBorder),
           ),
-        );
-      },
+          child: Center(
+            child: Column(
+              children: [
+                const Text('🍼', style: TextStyle(fontSize: 36)),
+                const SizedBox(height: 10),
+                Text(
+                  'No meals for this age yet',
+                  style: GoogleFonts.quicksand(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.placeholder,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return SizedBox(
+      height: 230,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        itemCount: meals.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 14),
+        itemBuilder: (context, i) => _MealChip(meal: meals[i]),
+      ),
+    );
+  }
+}
+
+class _MealChip extends StatelessWidget {
+  final Meal meal;
+  const _MealChip({required this.meal});
+
+  static const _gradients = [
+    [Color(0xFFD9ECFB), Color(0xFFECF5FF)],
+    [Color(0xFFD9F8EC), Color(0xFFECFFF5)],
+    [Color(0xFFFFF3D9), Color(0xFFFFFAEC)],
+    [Color(0xFFEED9FB), Color(0xFFF8ECFF)],
+  ];
+
+  List<Color> get _gradient {
+    final idx = int.tryParse(meal.id) ?? 0;
+    return _gradients[idx % _gradients.length];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Navigator.of(context).push(
+        PageRouteBuilder(
+          pageBuilder: (_, animation, _) => MealDetailScreen(meal: meal),
+          transitionsBuilder: (_, animation, _, child) => SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(1.0, 0.0),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+            )),
+            child: child,
+          ),
+          transitionDuration: const Duration(milliseconds: 350),
+        ),
+      ),
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 24),
+        width: 160,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(color: AppColors.cardBorder),
           boxShadow: [
             BoxShadow(
-              color: AppColors.blueSoft.withValues(alpha: .25),
-              blurRadius: 24,
-              offset: const Offset(0, 8),
+              color: AppColors.blueSoft.withValues(alpha: .2),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
             ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Emoji area
             ClipRRect(
               borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(22)),
+                  const BorderRadius.vertical(top: Radius.circular(20)),
               child: Container(
-                height: 160,
-                decoration: const BoxDecoration(
+                height: 100,
+                width: double.infinity,
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Color(0xFFD9ECFB), Color(0xFFECF5FF)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: _gradient,
                   ),
                 ),
-                child: Image.asset(
-                  'assets/img/home_card.png',
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          meal.name,
-                          style: GoogleFonts.fredoka(
-                            fontSize: 19,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.blueDeep,
-                            height: 1.25,
-                          ),
-                        ),
+                child: Stack(
+                  children: [
+                    Center(
+                      child: Text(
+                        meal.emoji,
+                        style: const TextStyle(fontSize: 48),
                       ),
-                      Container(
+                    ),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 11,
-                          vertical: 5,
-                        ),
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE6F0FB),
+                          color: Colors.white.withValues(alpha: .85),
                           borderRadius: BorderRadius.circular(999),
                         ),
                         child: Text(
                           meal.age,
                           style: GoogleFonts.quicksand(
-                            fontSize: 12,
+                            fontSize: 10,
                             fontWeight: FontWeight.w700,
                             color: AppColors.blueMid,
                           ),
                         ),
                       ),
-                    ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Info
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    meal.name,
+                    style: GoogleFonts.fredoka(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.blueDeep,
+                      height: 1.2,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      Icon(Icons.local_fire_department_rounded,
+                          size: 12, color: const Color(0xFFF5B638)),
+                      const SizedBox(width: 3),
                       Text(
-                        '${meal.calories} kcal  •  ${meal.cookTime} min',
+                        '${meal.cookTime}m',
                         style: GoogleFonts.quicksand(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: const Color(0xFF7A9BBF),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.blueMid,
                         ),
                       ),
-                      Row(
-                        children: List.generate(
-                          meal.rating.floor(),
-                          (_) => const Icon(
-                            Icons.star_rounded,
-                            size: 16,
-                            color: AppColors.star,
-                          ),
+                      const Spacer(),
+                      const Icon(Icons.star_rounded,
+                          size: 12, color: AppColors.star),
+                      const SizedBox(width: 2),
+                      Text(
+                        meal.rating.toStringAsFixed(1),
+                        style: GoogleFonts.quicksand(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.blueMid,
                         ),
                       ),
                     ],

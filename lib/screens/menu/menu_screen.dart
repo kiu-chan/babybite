@@ -58,7 +58,7 @@ class _MenuScreenState extends State<MenuScreen> {
 
     return allMeals.where((m) {
       final ageOk = selectedAge == 'All' ||
-          m.ageInMonths <= _ageInMonths(selectedAge);
+          m.ageInMonths == _ageInMonths(selectedAge);
       final catOk = m.category == selectedCategory;
       final searchOk = _searchText.isEmpty ||
           m.name.toLowerCase().contains(_searchText.toLowerCase());

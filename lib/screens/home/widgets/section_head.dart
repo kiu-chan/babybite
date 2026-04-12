@@ -2,30 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/app_colors.dart';
 
-class SectionHead extends StatefulWidget {
-  const SectionHead({super.key});
+class SectionHead extends StatelessWidget {
+  final String selectedAge;
+  final ValueChanged<String> onAgeChanged;
 
-  @override
-  State<SectionHead> createState() => _SectionHeadState();
-}
+  const SectionHead({
+    super.key,
+    required this.selectedAge,
+    required this.onAgeChanged,
+  });
 
-class _SectionHeadState extends State<SectionHead> {
-  String _selectedAge = '6m+';
+  static const _ageOptions = ['6m+', '8m+', '12m+', 'All'];
 
-  final _ageOptions = const ['6m+', '8m+', '12m+', 'All'];
-
-  void _showAgeFilter() {
+  void _showAgeFilter(BuildContext context) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) => StatefulBuilder(
-        builder: (ctx, setModalState) => SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+      builder: (_) => SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,11 +53,10 @@ class _SectionHeadState extends State<SectionHead> {
                 spacing: 10,
                 runSpacing: 10,
                 children: _ageOptions.map((age) {
-                  final active = age == _selectedAge;
+                  final active = age == selectedAge;
                   return GestureDetector(
                     onTap: () {
-                      setModalState(() {});
-                      setState(() => _selectedAge = age);
+                      onAgeChanged(age);
                       Navigator.pop(context);
                     },
                     child: AnimatedContainer(
@@ -88,7 +86,6 @@ class _SectionHeadState extends State<SectionHead> {
               ),
             ],
           ),
-          ),
         ),
       ),
     );
@@ -110,9 +107,10 @@ class _SectionHeadState extends State<SectionHead> {
             ),
           ),
           GestureDetector(
-            onTap: _showAgeFilter,
+            onTap: () => _showAgeFilter(context),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(14),
@@ -135,7 +133,7 @@ class _SectionHeadState extends State<SectionHead> {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    _selectedAge,
+                    selectedAge,
                     style: GoogleFonts.quicksand(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
