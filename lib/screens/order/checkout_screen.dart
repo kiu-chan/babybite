@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../services/cart_service.dart';
+import 'widgets/cart_item_widget.dart' show buildDietaryTags;
 import 'models/delivery_address.dart';
 import 'models/delivery_time.dart';
 import 'widgets/address_card.dart';
@@ -166,8 +167,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ),
           const SizedBox(height: 12),
           ...cart.items.map((item) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.only(bottom: 10),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
@@ -180,15 +182,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     ),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: Text(
-                        item.name,
-                        style: GoogleFonts.quicksand(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: _kDarkBlue,
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.name,
+                            style: GoogleFonts.quicksand(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: _kDarkBlue,
+                            ),
+                          ),
+                          buildDietaryTags(item.isHalal, item.isKosher),
+                        ],
                       ),
                     ),
+                    const SizedBox(width: 8),
                     Text(
                       'x${item.quantity}',
                       style: GoogleFonts.quicksand(

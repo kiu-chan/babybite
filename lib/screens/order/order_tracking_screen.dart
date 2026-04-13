@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../services/order_service.dart';
 import 'models/order.dart';
+import 'widgets/cart_item_widget.dart' show buildDietaryTags;
 
 const _kPrimary = Color(0xFF7EB8E8);
 const _kSoftBlue = Color(0xFFD4E8F8);
@@ -649,8 +650,9 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
           ),
           const SizedBox(height: 12),
           ...order.items.map((item) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.only(bottom: 10),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
@@ -663,15 +665,22 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
                     ),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: Text(
-                        item.name,
-                        style: GoogleFonts.quicksand(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: _kDarkBlue,
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.name,
+                            style: GoogleFonts.quicksand(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: _kDarkBlue,
+                            ),
+                          ),
+                          buildDietaryTags(item.isHalal, item.isKosher),
+                        ],
                       ),
                     ),
+                    const SizedBox(width: 8),
                     Text('x${item.quantity}',
                         style: GoogleFonts.quicksand(
                             fontSize: 13, color: _kGreyText)),

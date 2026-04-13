@@ -42,6 +42,8 @@ class CartService extends ChangeNotifier {
         subtitle: meal.category,
         priceValue: meal.price,
         timeBadge: meal.age,
+        isHalal: meal.isHalal,
+        isKosher: meal.isKosher,
         quantity: quantity,
       ));
     }

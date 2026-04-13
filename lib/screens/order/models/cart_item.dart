@@ -5,6 +5,8 @@ class CartItem {
   final String subtitle;
   final double priceValue;
   final String? timeBadge;
+  final bool isHalal;
+  final bool isKosher;
   int quantity;
 
   CartItem({
@@ -14,6 +16,8 @@ class CartItem {
     required this.subtitle,
     required this.priceValue,
     this.timeBadge,
+    this.isHalal = false,
+    this.isKosher = false,
     this.quantity = 1,
   });
 

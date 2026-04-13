@@ -6,6 +6,50 @@ const _kPrimary = Color(0xFF7EB8E8);
 const _kSoftBlue = Color(0xFFD4E8F8);
 const _kDarkBlue = Color(0xFF2C3E6B);
 
+Widget buildDietaryTags(bool isHalal, bool isKosher) {
+  if (!isHalal && !isKosher) return const SizedBox.shrink();
+  return Padding(
+    padding: const EdgeInsets.only(top: 5),
+    child: Row(
+      children: [
+        if (isHalal)
+          _dietaryTag('Halal', Icons.mosque_rounded,
+              const Color(0xFF2E8B57), const Color(0xFFDFF5EA)),
+        if (isHalal && isKosher) const SizedBox(width: 6),
+        if (isKosher)
+          _dietaryTag('Kosher', Icons.hexagon_outlined,
+              const Color(0xFF5B4FCF), const Color(0xFFEDE9FF)),
+      ],
+    ),
+  );
+}
+
+Widget _dietaryTag(
+    String label, IconData icon, Color textColor, Color bgColor) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+    decoration: BoxDecoration(
+      color: bgColor,
+      borderRadius: BorderRadius.circular(20),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 11, color: textColor),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: GoogleFonts.quicksand(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: textColor,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 class CartItemWidget extends StatelessWidget {
   final CartItem item;
   final VoidCallback onDelete;
@@ -69,6 +113,7 @@ class CartItemWidget extends StatelessWidget {
                     ),
                 ],
               ),
+              buildDietaryTags(item.isHalal, item.isKosher),
               const SizedBox(height: 6),
               Row(
                 children: [
