@@ -49,7 +49,7 @@ class RecommendedMealsList extends StatelessWidget {
     }
 
     return SizedBox(
-      height: 190,
+      height: 205,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -64,6 +64,36 @@ class RecommendedMealsList extends StatelessWidget {
 class _MealChip extends StatelessWidget {
   final Meal meal;
   const _MealChip({required this.meal});
+
+  Widget _dietaryTag({
+    required String label,
+    required IconData icon,
+    required Color textColor,
+    required Color bgColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 10, color: textColor),
+          const SizedBox(width: 3),
+          Text(
+            label,
+            style: GoogleFonts.quicksand(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: textColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -181,6 +211,28 @@ class _MealChip extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const Spacer(),
+                    if (meal.isHalal || meal.isKosher) ...[
+                      Row(
+                        children: [
+                          if (meal.isHalal)
+                            _dietaryTag(
+                              label: 'Halal',
+                              icon: Icons.mosque_rounded,
+                              textColor: const Color(0xFF2E8B57),
+                              bgColor: const Color(0xFFDFF5EA),
+                            ),
+                          if (meal.isHalal && meal.isKosher)
+                            const SizedBox(width: 4),
+                          if (meal.isKosher)
+                            _dietaryTag(
+                              label: 'Kosher',
+                              icon: Icons.hexagon_outlined,
+                              textColor: const Color(0xFF5B4FCF),
+                              bgColor: const Color(0xFFEDE9FF),
+                            ),
+                        ],
+                      ),
+                    ],
                     Row(
                       children: [
                         Icon(Icons.local_fire_department_rounded,

@@ -11,6 +11,10 @@ class FilterDrawer extends StatelessWidget {
   final ValueChanged<int> onCategoryChanged;
   final bool favoritesOnly;
   final ValueChanged<bool> onFavoritesOnlyChanged;
+  final bool halalOnly;
+  final ValueChanged<bool> onHalalOnlyChanged;
+  final bool kosherOnly;
+  final ValueChanged<bool> onKosherOnlyChanged;
   final VoidCallback onReset;
 
   const FilterDrawer({
@@ -23,10 +27,15 @@ class FilterDrawer extends StatelessWidget {
     required this.onCategoryChanged,
     required this.favoritesOnly,
     required this.onFavoritesOnlyChanged,
+    required this.halalOnly,
+    required this.onHalalOnlyChanged,
+    required this.kosherOnly,
+    required this.onKosherOnlyChanged,
     required this.onReset,
   });
 
   static const _categoryIcons = [
+    (icon: Icons.apps_rounded, color: Color(0xFF5AA3E8)),
     (icon: Icons.blur_circular_rounded, color: Color(0xFFF5B638)),
     (icon: Icons.cookie_rounded, color: Color(0xFFF47B89)),
     (icon: Icons.breakfast_dining_rounded, color: Color(0xFF7AC96A)),
@@ -62,6 +71,12 @@ class FilterDrawer extends StatelessWidget {
                       label: 'Category',
                       icon: Icons.restaurant_menu_rounded,
                       child: _buildCategoryChips(),
+                    ),
+                    const SizedBox(height: 28),
+                    _buildSection(
+                      label: 'Dietary',
+                      icon: Icons.verified_rounded,
+                      child: _buildDietaryToggles(),
                     ),
                     const SizedBox(height: 28),
                     _buildSection(
@@ -284,6 +299,83 @@ class FilterDrawer extends StatelessWidget {
     );
   }
 
+  Widget _buildDietaryToggles() {
+    return Column(
+      children: [
+        _buildToggleTile(
+          label: 'Halal',
+          subtitle: 'Suitable for Muslim dietary requirements',
+          value: halalOnly,
+          onChanged: onHalalOnlyChanged,
+          activeColor: const Color(0xFF3CB878),
+          icon: Icons.mosque_rounded,
+        ),
+        const SizedBox(height: 10),
+        _buildToggleTile(
+          label: 'Kosher',
+          subtitle: 'Suitable for Jewish dietary laws',
+          value: kosherOnly,
+          onChanged: onKosherOnlyChanged,
+          activeColor: const Color(0xFF7B68EE),
+          icon: Icons.hexagon_outlined,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildToggleTile({
+    required String label,
+    required String subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+    required Color activeColor,
+    required IconData icon,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: value ? activeColor.withValues(alpha: .4) : const Color(0xFFD6E6F7),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.blueSoft.withValues(alpha: .12),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: SwitchListTile.adaptive(
+        value: value,
+        onChanged: onChanged,
+        activeThumbColor: activeColor,
+        activeTrackColor: activeColor.withValues(alpha: .3),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+        title: Text(
+          label,
+          style: GoogleFonts.quicksand(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: AppColors.blueDeep,
+          ),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: GoogleFonts.quicksand(
+            fontSize: 11,
+            color: AppColors.placeholder,
+          ),
+        ),
+        secondary: Icon(
+          icon,
+          color: value ? activeColor : AppColors.blueMid,
+          size: 18,
+        ),
+      ),
+    );
+  }
+
   Widget _buildFavoritesToggle() {
     return Container(
       decoration: BoxDecoration(
@@ -301,7 +393,8 @@ class FilterDrawer extends StatelessWidget {
       child: SwitchListTile.adaptive(
         value: favoritesOnly,
         onChanged: onFavoritesOnlyChanged,
-        activeColor: const Color(0xFFE86868),
+        activeThumbColor: const Color(0xFFE86868),
+        activeTrackColor: const Color(0xFFE86868).withValues(alpha: .3),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12),
         title: Text(
           'Only favorites',

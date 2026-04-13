@@ -23,11 +23,13 @@ class _MenuScreenState extends State<MenuScreen> {
   String _searchText = '';
 
   int _ageIndex = 3; // default: All
-  int _categoryIndex = 0;
+  int _categoryIndex = 0; // default: All
   bool _favoritesOnly = false;
+  bool _halalOnly = false;
+  bool _kosherOnly = false;
 
   static const _ages = ['6m', '8m', '12m', 'All'];
-  static const _categories = ['Purees', 'Finger Foods', 'Breakfast', 'Snacks'];
+  static const _categories = ['All', 'Purees', 'Finger Foods', 'Breakfast', 'Snacks'];
 
   @override
   void dispose() {
@@ -52,6 +54,8 @@ class _MenuScreenState extends State<MenuScreen> {
     if (_ageIndex != 3) count++;
     if (_categoryIndex != 0) count++;
     if (_favoritesOnly) count++;
+    if (_halalOnly) count++;
+    if (_kosherOnly) count++;
     return count;
   }
 
@@ -63,11 +67,13 @@ class _MenuScreenState extends State<MenuScreen> {
     return allMeals.where((m) {
       final ageOk = selectedAge == 'All' ||
           m.ageInMonths == _ageInMonths(selectedAge);
-      final catOk = m.category == selectedCategory;
+      final catOk = selectedCategory == 'All' || m.category == selectedCategory;
       final favoriteOk = !_favoritesOnly || favoriteIds.contains(m.id);
+      final halalOk = !_halalOnly || m.isHalal;
+      final kosherOk = !_kosherOnly || m.isKosher;
       final searchOk = _searchText.isEmpty ||
           m.name.toLowerCase().contains(_searchText.toLowerCase());
-      return ageOk && catOk && favoriteOk && searchOk;
+      return ageOk && catOk && favoriteOk && halalOk && kosherOk && searchOk;
     }).toList();
   }
 
@@ -99,10 +105,16 @@ class _MenuScreenState extends State<MenuScreen> {
         favoritesOnly: _favoritesOnly,
         onFavoritesOnlyChanged: (value) =>
             setState(() => _favoritesOnly = value),
+        halalOnly: _halalOnly,
+        onHalalOnlyChanged: (value) => setState(() => _halalOnly = value),
+        kosherOnly: _kosherOnly,
+        onKosherOnlyChanged: (value) => setState(() => _kosherOnly = value),
         onReset: () => setState(() {
           _ageIndex = 3;
           _categoryIndex = 0;
           _favoritesOnly = false;
+          _halalOnly = false;
+          _kosherOnly = false;
         }),
       ),
       body: Stack(

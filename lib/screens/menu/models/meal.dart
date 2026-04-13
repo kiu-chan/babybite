@@ -11,6 +11,8 @@ class Meal {
   final int reviews;
   final String imagePath;
   final double price;
+  final bool isHalal;
+  final bool isKosher;
 
   const Meal({
     required this.id,
@@ -25,6 +27,8 @@ class Meal {
     required this.reviews,
     required this.imagePath,
     required this.price,
+    this.isHalal = false,
+    this.isKosher = false,
   });
 
   int get ageInMonths {

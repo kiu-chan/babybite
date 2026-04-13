@@ -137,6 +137,28 @@ class MealCardItem extends StatelessWidget {
               height: 1.25,
             ),
           ),
+          if (meal.isHalal || meal.isKosher) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                if (meal.isHalal)
+                  _dietaryTag(
+                    label: 'Halal',
+                    icon: Icons.mosque_rounded,
+                    textColor: const Color(0xFF2E8B57),
+                    bgColor: const Color(0xFFDFF5EA),
+                  ),
+                if (meal.isHalal && meal.isKosher) const SizedBox(width: 6),
+                if (meal.isKosher)
+                  _dietaryTag(
+                    label: 'Kosher',
+                    icon: Icons.hexagon_outlined,
+                    textColor: const Color(0xFF5B4FCF),
+                    bgColor: const Color(0xFFEDE9FF),
+                  ),
+              ],
+            ),
+          ],
           const SizedBox(height: 10),
           Row(
             children: [
@@ -170,6 +192,36 @@ class MealCardItem extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _dietaryTag({
+    required String label,
+    required IconData icon,
+    required Color textColor,
+    required Color bgColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 11, color: textColor),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: GoogleFonts.quicksand(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: textColor,
+            ),
           ),
         ],
       ),

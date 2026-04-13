@@ -51,8 +51,12 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                   children: [
                     _buildHero(meal),
                     _buildBadgesRow(meal),
+                    if (meal.isHalal || meal.isKosher)
+                      _buildDietaryBadgesRow(meal),
                     _buildInfoCard(meal),
                     _buildNutritionCard(meal),
+                    if (meal.isHalal || meal.isKosher)
+                      _buildDietaryCard(meal),
                     _buildAllergenCard(),
                     const SizedBox(height: 20),
                   ],
@@ -287,6 +291,147 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
           fontSize: 12,
           fontWeight: FontWeight.w700,
           color: textColor,
+        ),
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────
+  // DIETARY BADGES ROW – Halal / Kosher
+  // ────────────────────────────────────────────────────────
+  Widget _buildDietaryBadgesRow(Meal meal) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+      child: Row(
+        children: [
+          if (meal.isHalal) ...[
+            _dietaryBadge(
+              label: 'Halal',
+              icon: Icons.mosque_rounded,
+              textColor: const Color(0xFF2E8B57),
+              bgColor: const Color(0xFFDFF5EA),
+            ),
+            const SizedBox(width: 8),
+          ],
+          if (meal.isKosher)
+            _dietaryBadge(
+              label: 'Kosher',
+              icon: Icons.hexagon_outlined,
+              textColor: const Color(0xFF5B4FCF),
+              bgColor: const Color(0xFFEDE9FF),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _dietaryBadge({
+    required String label,
+    required IconData icon,
+    required Color textColor,
+    required Color bgColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: textColor),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: GoogleFonts.quicksand(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: textColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────
+  // DIETARY CARD – Halal / Kosher suitability note
+  // ────────────────────────────────────────────────────────
+  Widget _buildDietaryCard(Meal meal) {
+    final labels = <({String title, String note, Color color, IconData icon})>[];
+    if (meal.isHalal) {
+      labels.add((
+        title: 'Halal',
+        note: 'Suitable for Muslim dietary requirements',
+        color: const Color(0xFF2E8B57),
+        icon: Icons.mosque_rounded,
+      ));
+    }
+    if (meal.isKosher) {
+      labels.add((
+        title: 'Kosher',
+        note: 'Suitable for Jewish dietary laws',
+        color: const Color(0xFF5B4FCF),
+        icon: Icons.hexagon_outlined,
+      ));
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: _cardDecoration(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Dietary Suitability',
+              style: GoogleFonts.quicksand(
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF1E3A5F),
+              ),
+            ),
+            const SizedBox(height: 12),
+            ...labels.map((e) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: e.color.withValues(alpha: .12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(e.icon, color: e.color, size: 18),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        e.title,
+                        style: GoogleFonts.quicksand(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          color: e.color,
+                        ),
+                      ),
+                      Text(
+                        e.note,
+                        style: GoogleFonts.quicksand(
+                          fontSize: 12,
+                          color: const Color(0xFF9EBAD4),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            )),
+          ],
         ),
       ),
     );
