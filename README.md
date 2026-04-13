@@ -186,7 +186,7 @@ This is the most convenient option — no Terminal commands needed.
    code babybite
    ```
 2. In the bottom-right corner of the Status Bar, click the device name (e.g. **No Device**) to select a target device (Simulator, Emulator, or a real device)
-3. Press `fn + F5` or go to **Run > Start Debugging** to build and run the app
+3. Press `Fn + F5` or go to **Run > Start Debugging** to build and run the app
 4. Or click the **Run** (▶) button on the `lib/main.dart` file when it is open
 
 **Useful shortcuts while running:**
@@ -195,8 +195,8 @@ This is the most convenient option — no Terminal commands needed.
 |---|---|
 | `r` | Hot Reload — updates the UI instantly, preserves state |
 | `R` | Hot Restart — restarts the app, resets state |
-| `F5` | Start / Resume |
-| `Shift + F5` | Stop the app |
+| `Fn + F5` | Start / Resume |
+| `Fn + Shift + F5` | Stop the app |
 | `Cmd + Shift + P` → `Flutter: Select Device` | Switch the active device |
 
 ---
