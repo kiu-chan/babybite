@@ -17,94 +17,17 @@ A Flutter app for tracking children's nutrition.
 
 ---
 
-## Setup Overview
-
-```
-1. Homebrew
-2. Git
-3. Visual Studio Code
-4. Xcode (iOS)
-5. Android Studio (Android)
-6. Flutter SDK
-7. Clone project & run the app
-```
-
----
-
-## Step 1 — Install Homebrew
-
-Homebrew is a package manager for macOS, required to install development tools.
-
-Open **Terminal** (Command + Space → type "Terminal") and run:
-
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
-
-After installation, if you are using an **Apple Silicon (M1/M2/M3)** chip, add Homebrew to your PATH:
-
-```bash
-echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-eval "$(/opt/homebrew/bin/brew shellenv)"
-```
-
-Verify:
-
-```bash
-brew --version
-```
-
----
-
-## Step 2 — Install Git
-
-```bash
-brew install git
-git --version
-```
-
-Configure your personal information:
-
-```bash
-git config --global user.name "Your Name"
-git config --global user.email "email@example.com"
-```
-
----
-
-## Step 3 — Install Visual Studio Code
-
-### 3.1 Download and install
-
-1. Go to [https://code.visualstudio.com](https://code.visualstudio.com)
-2. Click **Download Mac Universal**
-3. Unzip the `.zip` file and drag **Visual Studio Code.app** into the **Applications** folder
-
-### 3.2 Install the `code` command in Terminal
-
-Open VSCode → press `Cmd + Shift + P` → type `Shell Command: Install 'code' command in PATH` → press Enter.
-
-### 3.3 Install Flutter extensions
-
-In VSCode, press `Cmd + Shift + X` and search for and install the following extensions:
-
-- **Flutter** (by Dart Code) — required
-- **Dart** (by Dart Code) — required
-- **GitLens** — optional, Git support
-
----
-
-## Step 4 — Install Xcode (for iOS)
+## Step 1 — Install Xcode (for iOS)
 
 > Xcode takes approximately **15–20 GB** of storage.
 
-### 4.1 Install Xcode from the App Store
+### 1.1 Install Xcode from the App Store
 
 1. Open the **App Store**
 2. Search for **Xcode** and click **Get** / **Install**
 3. The download and installation may take 30–60 minutes
 
-### 4.2 Install Command Line Tools and accept the License
+### 1.2 Install Command Line Tools and accept the License
 
 ```bash
 sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
@@ -112,7 +35,7 @@ sudo xcodebuild -runFirstLaunch
 sudo xcodebuild -license accept
 ```
 
-### 4.3 Install CocoaPods
+### 1.3 Install CocoaPods
 
 ```bash
 sudo gem install cocoapods
@@ -127,18 +50,18 @@ brew install cocoapods
 
 ---
 
-## Step 5 — Install Android Studio (for Android)
+## Step 2 — Install Android Studio (for Android)
 
 > Android Studio + SDK takes approximately **10–15 GB** of storage.
 
-### 5.1 Download and install
+### 2.1 Download and install
 
 1. Go to [https://developer.android.com/studio](https://developer.android.com/studio)
 2. Click **Download Android Studio**
 3. Open the `.dmg` file, drag **Android Studio.app** into the **Applications** folder
 4. Open Android Studio and follow the Setup Wizard (select **Standard** when prompted)
 
-### 5.2 Install Android SDK and Command-line Tools
+### 2.2 Install Android SDK and Command-line Tools
 
 In Android Studio:
 
@@ -152,7 +75,7 @@ In Android Studio:
    - Android SDK Platform-Tools
 5. Click **Apply** and wait for the download to complete
 
-### 5.3 Set Android environment variables
+### 2.3 Set Android environment variables
 
 Add to `~/.zshrc` (or `~/.bash_profile` if using bash):
 
@@ -170,7 +93,7 @@ Apply the changes:
 source ~/.zshrc
 ```
 
-### 5.4 Accept Android Licenses
+### 2.4 Accept Android Licenses
 
 ```bash
 flutter doctor --android-licenses
@@ -178,25 +101,23 @@ flutter doctor --android-licenses
 
 Press `y` to accept all.
 
-### 5.5 Create an Android Emulator (optional)
+### 2.5 Create an Android Emulator
 
 In Android Studio → **Device Manager** → **Create Device** → select a device (e.g. Pixel 8) → select a system image (API 34) → Finish.
 
 ---
 
-## Step 6 — Install Flutter SDK
+## Step 3 — Install Flutter SDK
 
 > Flutter SDK takes approximately **2–3 GB** of storage.
 
-### 6.1 Install Flutter via Homebrew
+### 3.1 Install Flutter via Homebrew
 
 ```bash
 brew install --cask flutter
 ```
 
-### 6.2 Verify environment variables
-
-After installation, run the following command to verify:
+### 3.2 Verify installation
 
 ```bash
 flutter --version
@@ -209,7 +130,7 @@ export PATH="$PATH:$HOME/flutter/bin"
 source ~/.zshrc
 ```
 
-### 6.3 Run Flutter Doctor
+### 3.3 Run Flutter Doctor
 
 ```bash
 flutter doctor
@@ -229,7 +150,15 @@ If any item shows `[✗]` or `[!]`, follow the instructions in the output to res
 
 ---
 
-## Step 7 — Clone the project
+## Step 4 — Get the project
+
+### Option A: Download ZIP (no Git required)
+
+1. Go to [https://github.com/kiu-chan/babybite](https://github.com/kiu-chan/babybite)
+2. Click **Code** → **Download ZIP**
+3. Extract the archive and open the `babybite` folder
+
+### Option B: Clone with Git
 
 ```bash
 git clone https://github.com/kiu-chan/babybite.git
@@ -238,7 +167,7 @@ cd babybite
 
 ---
 
-## Step 8 — Install dependencies
+## Step 5 — Install dependencies
 
 ```bash
 flutter pub get
@@ -246,7 +175,7 @@ flutter pub get
 
 ---
 
-## Step 9 — Run the app
+## Step 6 — Run the app
 
 ### Option 1: Use the VSCode Flutter Extension (recommended)
 
@@ -313,6 +242,11 @@ flutter devices
 # Run on the specified device
 flutter run -d <device-id>
 ```
+
+> **Tip:** For smoother performance, run in release mode:
+> ```bash
+> flutter run --release
+> ```
 
 ---
 
