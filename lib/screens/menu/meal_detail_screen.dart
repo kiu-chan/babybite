@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'models/meal.dart';
 import '../../services/cart_service.dart';
 import '../../services/favorite_service.dart';
+import '../../services/health_condition_service.dart';
+import '../../models/health_condition.dart';
 
 class MealDetailScreen extends StatefulWidget {
   final Meal meal;
@@ -53,10 +55,13 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                     _buildBadgesRow(meal),
                     if (meal.isHalal || meal.isKosher)
                       _buildDietaryBadgesRow(meal),
+                    if (meal.healthTagLabels.isNotEmpty)
+                      _buildHealthTagsRow(meal),
                     _buildInfoCard(meal),
                     _buildNutritionCard(meal),
                     if (meal.isHalal || meal.isKosher)
                       _buildDietaryCard(meal),
+                    _buildHealthSuitabilityCard(meal),
                     _buildAllergenCard(),
                     const SizedBox(height: 20),
                   ],
@@ -95,7 +100,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
           ),
           ValueListenableBuilder<Set<String>>(
             valueListenable: FavoriteService.instance.favoriteMealIdsListenable,
-            builder: (_, favoriteIds, __) {
+            builder: (_, favoriteIds, _) {
               final isFavorite = favoriteIds.contains(meal.id);
               return _circleBtn(
                 icon: isFavorite
@@ -163,7 +168,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
   }
 
   // ────────────────────────────────────────────────────────
-  // HERO – large emoji + image background
+  // HERO
   // ────────────────────────────────────────────────────────
   Widget _buildHero(Meal meal) {
     return Padding(
@@ -179,7 +184,6 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
               fit: BoxFit.cover,
             ),
           ),
-          // Dark overlay
           ClipRRect(
             borderRadius: BorderRadius.circular(24),
             child: Container(
@@ -196,7 +200,6 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
               ),
             ),
           ),
-          // Rating badge top-right
           Positioned(
             top: 12,
             right: 12,
@@ -232,7 +235,6 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
               ),
             ),
           ),
-          // Meal name bottom-left
           Positioned(
             bottom: 14,
             left: 16,
@@ -323,6 +325,52 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
         ],
       ),
     );
+  }
+
+  // ────────────────────────────────────────────────────────
+  // HEALTH TAGS ROW
+  // ────────────────────────────────────────────────────────
+  Widget _buildHealthTagsRow(Meal meal) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+      child: Wrap(
+        spacing: 6,
+        runSpacing: 6,
+        children: meal.healthTagLabels.map((tag) {
+          final style = _healthTagStyle(tag);
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: style.bgColor,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              tag,
+              style: GoogleFonts.quicksand(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: style.color,
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  ({Color color, Color bgColor}) _healthTagStyle(String label) {
+    switch (label) {
+      case 'Low Sugar':
+        return (color: const Color(0xFF059669), bgColor: const Color(0xFFD1FAE5));
+      case 'Low GI':
+        return (color: const Color(0xFF2563EB), bgColor: const Color(0xFFDBEAFE));
+      case 'Anti-inflammatory':
+        return (color: const Color(0xFF7C3AED), bgColor: const Color(0xFFEDE9FE));
+      case 'No Dairy':
+        return (color: const Color(0xFFD97706), bgColor: const Color(0xFFFEF3C7));
+      default:
+        return (color: const Color(0xFF5AA3E8), bgColor: const Color(0xFFDBEAFE));
+    }
   }
 
   Widget _dietaryBadge({
@@ -434,6 +482,172 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────
+  // HEALTH SUITABILITY CARD
+  // ────────────────────────────────────────────────────────
+  Widget _buildHealthSuitabilityCard(Meal meal) {
+    return ValueListenableBuilder<Set<HealthCondition>>(
+      valueListenable: HealthConditionService.instance.selectedListenable,
+      builder: (_, conditions, _) {
+        final tags = meal.healthTagLabels;
+        final hasContent = conditions.isNotEmpty || tags.isNotEmpty;
+        if (!hasContent) return const SizedBox.shrink();
+
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: _cardDecoration(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.health_and_safety_rounded,
+                        size: 18, color: Color(0xFF5AA3E8)),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Health Suitability',
+                      style: GoogleFonts.quicksand(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF1E3A5F),
+                      ),
+                    ),
+                  ],
+                ),
+                if (conditions.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  ...conditions.map((condition) {
+                    final suitable = meal.isSuitableFor(condition);
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: condition.color.withValues(alpha: .12),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Icon(condition.icon,
+                                color: condition.color, size: 18),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      condition.displayName,
+                                      style: GoogleFonts.quicksand(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w800,
+                                        color: condition.color,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 7, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: suitable
+                                            ? const Color(0xFFE8F5E9)
+                                            : const Color(0xFFFFF8E1),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            suitable
+                                                ? Icons.check_circle_rounded
+                                                : Icons.warning_amber_rounded,
+                                            size: 10,
+                                            color: suitable
+                                                ? const Color(0xFF43A047)
+                                                : const Color(0xFFD97706),
+                                          ),
+                                          const SizedBox(width: 3),
+                                          Text(
+                                            suitable ? 'Suitable' : 'Check',
+                                            style: GoogleFonts.quicksand(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w700,
+                                              color: suitable
+                                                  ? const Color(0xFF2E7D32)
+                                                  : const Color(0xFF92400E),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 3),
+                                Text(
+                                  meal.suitabilityNote(condition),
+                                  style: GoogleFonts.quicksand(
+                                    fontSize: 12,
+                                    color: const Color(0xFF9EBAD4),
+                                    height: 1.4,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                ] else ...[
+                  const SizedBox(height: 10),
+                  Text(
+                    'Select health conditions in your profile to see personalised meal guidance here.',
+                    style: GoogleFonts.quicksand(
+                      fontSize: 12,
+                      color: const Color(0xFF9EBAD4),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFFBEB),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFFDE68A)),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.info_outline_rounded,
+                          size: 13, color: Color(0xFFD97706)),
+                      const SizedBox(width: 7),
+                      Expanded(
+                        child: Text(
+                          'This app provides general nutritional guidance and does not replace medical advice.',
+                          style: GoogleFonts.quicksand(
+                            fontSize: 11,
+                            color: const Color(0xFF92400E),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -598,7 +812,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
   }
 
   // ────────────────────────────────────────────────────────
-  // BOTTOM BAR – quantity stepper + add to cart
+  // BOTTOM BAR
   // ────────────────────────────────────────────────────────
   Widget _buildBottomBar(Meal meal) {
     final totalPrice = meal.price * _quantity;
@@ -616,7 +830,6 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
       ),
       child: Row(
         children: [
-          // Quantity stepper
           Container(
             padding:
                 const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
@@ -651,7 +864,6 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
             ),
           ),
           const SizedBox(width: 14),
-          // Add to cart button
           Expanded(
             child: GestureDetector(
               onTap: _addToCart,

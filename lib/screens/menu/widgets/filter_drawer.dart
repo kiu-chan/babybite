@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/app_colors.dart';
+import '../../../models/health_condition.dart';
+import '../../../services/health_condition_service.dart';
 
 class FilterDrawer extends StatelessWidget {
   final List<String> ages;
@@ -15,6 +17,8 @@ class FilterDrawer extends StatelessWidget {
   final ValueChanged<bool> onHalalOnlyChanged;
   final bool kosherOnly;
   final ValueChanged<bool> onKosherOnlyChanged;
+  final bool suitableOnly;
+  final ValueChanged<bool> onSuitableOnlyChanged;
   final VoidCallback onReset;
 
   const FilterDrawer({
@@ -31,6 +35,8 @@ class FilterDrawer extends StatelessWidget {
     required this.onHalalOnlyChanged,
     required this.kosherOnly,
     required this.onKosherOnlyChanged,
+    required this.suitableOnly,
+    required this.onSuitableOnlyChanged,
     required this.onReset,
   });
 
@@ -80,6 +86,12 @@ class FilterDrawer extends StatelessWidget {
                     ),
                     const SizedBox(height: 28),
                     _buildSection(
+                      label: 'Health Conditions',
+                      icon: Icons.health_and_safety_rounded,
+                      child: _buildHealthConditions(),
+                    ),
+                    const SizedBox(height: 28),
+                    _buildSection(
                       label: 'Favorites',
                       icon: Icons.favorite_rounded,
                       child: _buildFavoritesToggle(),
@@ -125,6 +137,7 @@ class FilterDrawer extends StatelessWidget {
           const Spacer(),
           TextButton(
             onPressed: () {
+              HealthConditionService.instance.clearAll();
               onReset();
             },
             style: TextButton.styleFrom(
@@ -320,6 +333,88 @@ class FilterDrawer extends StatelessWidget {
           icon: Icons.hexagon_outlined,
         ),
       ],
+    );
+  }
+
+  Widget _buildHealthConditions() {
+    return ValueListenableBuilder<Set<HealthCondition>>(
+      valueListenable: HealthConditionService.instance.selectedListenable,
+      builder: (_, selected, _) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: HealthCondition.values.map((condition) {
+                final active = selected.contains(condition);
+                return GestureDetector(
+                  onTap: () =>
+                      HealthConditionService.instance.toggle(condition),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 9),
+                    decoration: BoxDecoration(
+                      color: active
+                          ? condition.color.withValues(alpha: .12)
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: active
+                            ? condition.color.withValues(alpha: .6)
+                            : const Color(0xFFD6E6F7),
+                        width: active ? 1.5 : 1,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.blueSoft.withValues(alpha: .12),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          condition.icon,
+                          size: 14,
+                          color: active
+                              ? condition.color
+                              : AppColors.blueMid,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          condition.displayName,
+                          style: GoogleFonts.quicksand(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: active
+                                ? condition.color
+                                : AppColors.blueDeep,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+            if (selected.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              _buildToggleTile(
+                label: 'Suitable meals only',
+                subtitle: 'Hide meals not matching conditions',
+                value: suitableOnly,
+                onChanged: onSuitableOnlyChanged,
+                activeColor: const Color(0xFF43A047),
+                icon: Icons.filter_list_rounded,
+              ),
+            ],
+          ],
+        );
+      },
     );
   }
 

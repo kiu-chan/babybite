@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../services/order_service.dart';
 import '../../services/favorite_service.dart';
+import '../../services/health_condition_service.dart';
+import '../../models/health_condition.dart';
 import 'models/user_profile.dart';
 import 'models/baby_info.dart';
 import 'widgets/profile_header.dart';
@@ -65,6 +67,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 20),
           BabyCard(baby: _baby, onEditTap: _openEditBaby),
           const SizedBox(height: 20),
+          const _HealthConditionsCard(),
+          const SizedBox(height: 20),
           _MyOrdersButton(onTap: () {
             Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => const OrderHistoryScreen(),
@@ -83,6 +87,211 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 28),
         ],
       ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────
+// HEALTH CONDITIONS CARD
+// ─────────────────────────────────────────────────────────
+class _HealthConditionsCard extends StatelessWidget {
+  const _HealthConditionsCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<Set<HealthCondition>>(
+      valueListenable: HealthConditionService.instance.selectedListenable,
+      builder: (_, selected, _) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFFEAF2FB)),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF7EB8E8).withValues(alpha: .14),
+                  blurRadius: 14,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F4FD),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(
+                        Icons.health_and_safety_rounded,
+                        size: 20,
+                        color: Color(0xFF5AA3E8),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Child\'s Health Conditions',
+                            style: GoogleFonts.quicksand(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF1E3A5F),
+                            ),
+                          ),
+                          Text(
+                            'Select for personalized meal recommendations',
+                            style: GoogleFonts.quicksand(
+                              fontSize: 11,
+                              color: const Color(0xFF9EBAD4),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (selected.isNotEmpty)
+                      GestureDetector(
+                        onTap: HealthConditionService.instance.clearAll,
+                        child: Text(
+                          'Clear',
+                          style: GoogleFonts.quicksand(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF9EBAD4),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: HealthCondition.values.map((condition) {
+                    final isSelected = selected.contains(condition);
+                    return GestureDetector(
+                      onTap: () =>
+                          HealthConditionService.instance.toggle(condition),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 180),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? condition.color.withValues(alpha: .12)
+                              : const Color(0xFFF5F9FF),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isSelected
+                                ? condition.color.withValues(alpha: .6)
+                                : const Color(0xFFD6E6F7),
+                            width: isSelected ? 1.5 : 1,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              condition.icon,
+                              size: 14,
+                              color: isSelected
+                                  ? condition.color
+                                  : const Color(0xFF9EBAD4),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              condition.displayName,
+                              style: GoogleFonts.quicksand(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: isSelected
+                                    ? condition.color
+                                    : const Color(0xFF6B8FAE),
+                              ),
+                            ),
+                            if (isSelected) ...[
+                              const SizedBox(width: 5),
+                              Icon(
+                                Icons.check_circle_rounded,
+                                size: 13,
+                                color: condition.color,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+                if (selected.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE8F5E9),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.check_circle_rounded,
+                            size: 13, color: Color(0xFF43A047)),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            'Meals are now labeled based on your selection. Check the menu for suitable options.',
+                            style: GoogleFonts.quicksand(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF2E7D32),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFFBEB),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFFDE68A)),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.info_outline_rounded,
+                          size: 13, color: Color(0xFFD97706)),
+                      const SizedBox(width: 7),
+                      Expanded(
+                        child: Text(
+                          'This app provides general nutritional guidance and does not replace medical advice.',
+                          style: GoogleFonts.quicksand(
+                            fontSize: 11,
+                            color: const Color(0xFF92400E),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -180,7 +389,7 @@ class _FavoriteMealsButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder<Set<String>>(
       valueListenable: FavoriteService.instance.favoriteMealIdsListenable,
-      builder: (_, favoriteIds, __) {
+      builder: (_, favoriteIds, _) {
         final favoriteCount = favoriteIds.length;
 
         return Padding(

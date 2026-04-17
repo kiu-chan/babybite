@@ -15,7 +15,7 @@ class StatsRow extends StatelessWidget {
         children: [
           AnimatedBuilder(
             animation: OrderService.instance,
-            builder: (_, __) => _StatCard(
+            builder: (_, _) => _StatCard(
               value: '${OrderService.instance.orders.length}',
               label: 'Orders\nPlaced',
               icon: Icons.receipt_long_rounded,
@@ -24,7 +24,7 @@ class StatsRow extends StatelessWidget {
           const SizedBox(width: 12),
           ValueListenableBuilder<Set<String>>(
             valueListenable: FavoriteService.instance.favoriteMealIdsListenable,
-            builder: (_, favoriteIds, __) => _StatCard(
+            builder: (_, favoriteIds, _) => _StatCard(
               value: '${favoriteIds.length}',
               label: 'Saved\nFavorites',
               icon: Icons.favorite_rounded,

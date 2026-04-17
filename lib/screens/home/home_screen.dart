@@ -190,7 +190,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 10),
               ValueListenableBuilder<Set<String>>(
                 valueListenable: FavoriteService.instance.favoriteMealIdsListenable,
-                builder: (_, favoriteIds, __) {
+                builder: (_, favoriteIds, _) {
                   final favoriteMeals = allMeals
                       .where((meal) => favoriteIds.contains(meal.id))
                       .toList()
@@ -276,7 +276,7 @@ class _SearchSuggestionsDropdown extends StatelessWidget {
           final meal = suggestions[index];
           return ValueListenableBuilder<Set<String>>(
             valueListenable: FavoriteService.instance.favoriteMealIdsListenable,
-            builder: (_, favoriteIds, __) {
+            builder: (_, favoriteIds, _) {
               final isFavorite = favoriteIds.contains(meal.id);
               return ListTile(
                 dense: true,

@@ -27,7 +27,7 @@ class FavoriteMealsScreen extends StatelessWidget {
       ),
       body: ValueListenableBuilder<Set<String>>(
         valueListenable: FavoriteService.instance.favoriteMealIdsListenable,
-        builder: (_, favoriteIds, __) {
+        builder: (_, favoriteIds, _) {
           final meals = allMeals
               .where((meal) => favoriteIds.contains(meal.id))
               .toList()

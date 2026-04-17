@@ -169,7 +169,7 @@ class _MealChip extends StatelessWidget {
                     left: 8,
                     child: ValueListenableBuilder<Set<String>>(
                       valueListenable: favoriteListenable,
-                      builder: (_, favoriteIds, __) {
+                      builder: (_, favoriteIds, _) {
                         if (!favoriteIds.contains(meal.id)) {
                           return const SizedBox.shrink();
                         }

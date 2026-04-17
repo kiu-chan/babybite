@@ -1,3 +1,5 @@
+import '../../../models/health_condition.dart';
+
 class Meal {
   final String id;
   final String name;
@@ -13,6 +15,12 @@ class Meal {
   final double price;
   final bool isHalal;
   final bool isKosher;
+  // Health tags
+  final bool isLowSugar;
+  final bool isLowGlycemicIndex;
+  final bool isAntiInflammatory;
+  final bool noDairy;
+  final bool noCommonAllergens;
 
   const Meal({
     required this.id,
@@ -29,6 +37,11 @@ class Meal {
     required this.price,
     this.isHalal = false,
     this.isKosher = false,
+    this.isLowSugar = false,
+    this.isLowGlycemicIndex = false,
+    this.isAntiInflammatory = false,
+    this.noDairy = false,
+    this.noCommonAllergens = false,
   });
 
   int get ageInMonths {
@@ -41,6 +54,54 @@ class Meal {
         return 12;
       default:
         return 0;
+    }
+  }
+
+  List<String> get healthTagLabels {
+    return [
+      if (isLowSugar) 'Low Sugar',
+      if (isLowGlycemicIndex) 'Low GI',
+      if (isAntiInflammatory) 'Anti-inflammatory',
+      if (noDairy) 'No Dairy',
+    ];
+  }
+
+  bool isSuitableFor(HealthCondition condition) {
+    switch (condition) {
+      case HealthCondition.diabetes:
+        return isLowSugar && isLowGlycemicIndex;
+      case HealthCondition.psoriasis:
+        return isAntiInflammatory;
+      case HealthCondition.lactoseIntolerance:
+        return noDairy;
+      case HealthCondition.allergies:
+        return noCommonAllergens;
+    }
+  }
+
+  bool isSuitableForAll(Set<HealthCondition> conditions) {
+    if (conditions.isEmpty) return true;
+    return conditions.every(isSuitableFor);
+  }
+
+  String suitabilityNote(HealthCondition condition) {
+    switch (condition) {
+      case HealthCondition.diabetes:
+        return isLowSugar && isLowGlycemicIndex
+            ? 'Low in sugar with slow-digesting carbohydrates, helping maintain stable blood sugar levels.'
+            : 'This meal may contain higher sugar or fast-digesting carbs. Consider offering in moderation.';
+      case HealthCondition.psoriasis:
+        return isAntiInflammatory
+            ? 'Contains anti-inflammatory ingredients that may help support healthy skin.'
+            : 'Limited anti-inflammatory properties. Best offered alongside other skin-friendly foods.';
+      case HealthCondition.lactoseIntolerance:
+        return noDairy
+            ? 'Completely dairy-free and safe for children with lactose intolerance.'
+            : 'Contains dairy products. Not suitable for children with lactose intolerance.';
+      case HealthCondition.allergies:
+        return noCommonAllergens
+            ? 'Free from common allergens including dairy, gluten, and shellfish.'
+            : 'May contain common allergens. Please check all ingredients carefully before serving.';
     }
   }
 }

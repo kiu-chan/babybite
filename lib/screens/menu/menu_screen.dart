@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/app_colors.dart';
 import '../../services/favorite_service.dart';
+import '../../services/health_condition_service.dart';
 import 'data/meal_data.dart';
 import 'models/meal.dart';
 import 'widgets/menu_header.dart';
@@ -27,15 +28,27 @@ class _MenuScreenState extends State<MenuScreen> {
   bool _favoritesOnly = false;
   bool _halalOnly = false;
   bool _kosherOnly = false;
+  bool _suitableOnly = false;
 
   static const _ages = ['6m', '8m', '12m', 'All'];
   static const _categories = ['All', 'Purees', 'Finger Foods', 'Breakfast', 'Snacks'];
 
   @override
+  void initState() {
+    super.initState();
+    HealthConditionService.instance.selectedListenable
+        .addListener(_onConditionsChanged);
+  }
+
+  @override
   void dispose() {
+    HealthConditionService.instance.selectedListenable
+        .removeListener(_onConditionsChanged);
     _searchController.dispose();
     super.dispose();
   }
+
+  void _onConditionsChanged() => setState(() {});
 
   void _toggleSearch() {
     setState(() {
@@ -56,6 +69,8 @@ class _MenuScreenState extends State<MenuScreen> {
     if (_favoritesOnly) count++;
     if (_halalOnly) count++;
     if (_kosherOnly) count++;
+    if (_suitableOnly) count++;
+    count += HealthConditionService.instance.selected.length;
     return count;
   }
 
@@ -63,6 +78,7 @@ class _MenuScreenState extends State<MenuScreen> {
     final selectedAge = _ages[_ageIndex];
     final selectedCategory = _categories[_categoryIndex];
     final favoriteIds = FavoriteService.instance.favoriteMealIdsListenable.value;
+    final conditions = HealthConditionService.instance.selected;
 
     return allMeals.where((m) {
       final ageOk = selectedAge == 'All' ||
@@ -71,9 +87,12 @@ class _MenuScreenState extends State<MenuScreen> {
       final favoriteOk = !_favoritesOnly || favoriteIds.contains(m.id);
       final halalOk = !_halalOnly || m.isHalal;
       final kosherOk = !_kosherOnly || m.isKosher;
+      final healthOk = !_suitableOnly ||
+          conditions.isEmpty ||
+          m.isSuitableForAll(conditions);
       final searchOk = _searchText.isEmpty ||
           m.name.toLowerCase().contains(_searchText.toLowerCase());
-      return ageOk && catOk && favoriteOk && halalOk && kosherOk && searchOk;
+      return ageOk && catOk && favoriteOk && halalOk && kosherOk && healthOk && searchOk;
     }).toList();
   }
 
@@ -109,20 +128,23 @@ class _MenuScreenState extends State<MenuScreen> {
         onHalalOnlyChanged: (value) => setState(() => _halalOnly = value),
         kosherOnly: _kosherOnly,
         onKosherOnlyChanged: (value) => setState(() => _kosherOnly = value),
+        suitableOnly: _suitableOnly,
+        onSuitableOnlyChanged: (value) =>
+            setState(() => _suitableOnly = value),
         onReset: () => setState(() {
           _ageIndex = 3;
           _categoryIndex = 0;
           _favoritesOnly = false;
           _halalOnly = false;
           _kosherOnly = false;
+          _suitableOnly = false;
         }),
       ),
       body: Stack(
         children: [
-          // List fills full body, top padding reserves space for floating header
           ValueListenableBuilder<Set<String>>(
             valueListenable: FavoriteService.instance.favoriteMealIdsListenable,
-            builder: (_, __, ___) {
+            builder: (_, _, _) {
               final filteredMeals = _filtered;
               return filteredMeals.isEmpty
                   ? _buildEmpty()
@@ -134,8 +156,6 @@ class _MenuScreenState extends State<MenuScreen> {
                     );
             },
           ),
-
-          // Transparent floating header pinned at top
           Positioned(
             top: 0,
             left: 0,

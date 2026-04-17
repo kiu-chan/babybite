@@ -17,6 +17,9 @@ const List<Meal> allMeals = [
     price: 4.50,
     isHalal: true,
     isKosher: true,
+    isAntiInflammatory: true,
+    noDairy: true,
+    noCommonAllergens: true,
   ),
   Meal(
     id: '2',
@@ -33,6 +36,8 @@ const List<Meal> allMeals = [
     price: 4.50,
     isHalal: true,
     isKosher: true,
+    noDairy: true,
+    noCommonAllergens: true,
   ),
   Meal(
     id: '3',
@@ -49,6 +54,11 @@ const List<Meal> allMeals = [
     price: 5.00,
     isHalal: true,
     isKosher: true,
+    isLowSugar: true,
+    isLowGlycemicIndex: true,
+    isAntiInflammatory: true,
+    noDairy: true,
+    noCommonAllergens: true,
   ),
   Meal(
     id: '4',
@@ -65,6 +75,11 @@ const List<Meal> allMeals = [
     price: 4.50,
     isHalal: true,
     isKosher: true,
+    isLowSugar: true,
+    isLowGlycemicIndex: true,
+    isAntiInflammatory: true,
+    noDairy: true,
+    noCommonAllergens: true,
   ),
   Meal(
     id: '5',
@@ -81,6 +96,11 @@ const List<Meal> allMeals = [
     price: 5.00,
     isHalal: true,
     isKosher: true,
+    isLowSugar: true,
+    isLowGlycemicIndex: true,
+    isAntiInflammatory: true,
+    noDairy: true,
+    noCommonAllergens: true,
   ),
   Meal(
     id: '18',
@@ -97,6 +117,11 @@ const List<Meal> allMeals = [
     price: 5.50,
     isHalal: true,
     isKosher: false,
+    isLowSugar: true,
+    isLowGlycemicIndex: true,
+    isAntiInflammatory: true,
+    noDairy: true,
+    noCommonAllergens: true,
   ),
   Meal(
     id: '20',
@@ -113,6 +138,9 @@ const List<Meal> allMeals = [
     price: 4.50,
     isHalal: true,
     isKosher: true,
+    isAntiInflammatory: true,
+    noDairy: true,
+    noCommonAllergens: true,
   ),
   Meal(
     id: '21',
@@ -129,6 +157,9 @@ const List<Meal> allMeals = [
     price: 4.50,
     isHalal: true,
     isKosher: true,
+    isAntiInflammatory: true,
+    noDairy: true,
+    noCommonAllergens: true,
   ),
   Meal(
     id: '22',
@@ -145,8 +176,12 @@ const List<Meal> allMeals = [
     price: 5.00,
     isHalal: true,
     isKosher: true,
+    isLowSugar: true,
+    isLowGlycemicIndex: true,
+    isAntiInflammatory: true,
+    noDairy: true,
+    noCommonAllergens: true,
   ),
-
   Meal(
     id: '31',
     name: 'Shrimp & Veggie Puree',
@@ -160,6 +195,11 @@ const List<Meal> allMeals = [
     reviews: 9,
     imagePath: 'assets/img/menu_card.png',
     price: 6.00,
+    isLowSugar: true,
+    isLowGlycemicIndex: true,
+    isAntiInflammatory: true,
+    noDairy: true,
+    noCommonAllergens: false, // shellfish allergen
   ),
 
   // ── Finger Foods ─────────────────────────────────────────────
@@ -176,6 +216,11 @@ const List<Meal> allMeals = [
     reviews: 12,
     imagePath: 'assets/img/home_card.png',
     price: 5.50,
+    isLowSugar: true,
+    isLowGlycemicIndex: true,
+    isAntiInflammatory: true,
+    noDairy: false, // cheese
+    noCommonAllergens: false,
   ),
   Meal(
     id: '7',
@@ -191,6 +236,11 @@ const List<Meal> allMeals = [
     imagePath: 'assets/img/menu_card.png',
     price: 5.50,
     isHalal: true,
+    isLowSugar: true,
+    isLowGlycemicIndex: true,
+    isAntiInflammatory: true,
+    noDairy: true,
+    noCommonAllergens: true,
   ),
   Meal(
     id: '8',
@@ -207,6 +257,11 @@ const List<Meal> allMeals = [
     price: 5.00,
     isHalal: true,
     isKosher: true,
+    isLowSugar: true,
+    isLowGlycemicIndex: true,
+    isAntiInflammatory: true,
+    noDairy: true,
+    noCommonAllergens: true,
   ),
   Meal(
     id: '23',
@@ -223,6 +278,10 @@ const List<Meal> allMeals = [
     price: 5.50,
     isHalal: true,
     isKosher: true,
+    isLowSugar: true,
+    isAntiInflammatory: true,
+    noDairy: true,
+    noCommonAllergens: false, // gluten in toast
   ),
   Meal(
     id: '24',
@@ -239,6 +298,11 @@ const List<Meal> allMeals = [
     price: 6.00,
     isHalal: false,
     isKosher: true,
+    isLowSugar: true,
+    isLowGlycemicIndex: true,
+    isAntiInflammatory: true,
+    noDairy: true,
+    noCommonAllergens: false, // fish allergen
   ),
   Meal(
     id: '25',
@@ -255,6 +319,9 @@ const List<Meal> allMeals = [
     price: 6.00,
     isHalal: true,
     isKosher: false,
+    isLowSugar: true,
+    noDairy: true,
+    noCommonAllergens: true,
   ),
   Meal(
     id: '9',
@@ -271,8 +338,9 @@ const List<Meal> allMeals = [
     price: 4.50,
     isHalal: true,
     isKosher: true,
+    noDairy: true,
+    noCommonAllergens: true,
   ),
-
   Meal(
     id: '32',
     name: 'Ham & Sweet Potato Mash',
@@ -286,6 +354,11 @@ const List<Meal> allMeals = [
     reviews: 8,
     imagePath: 'assets/img/home_card.png',
     price: 5.50,
+    isLowSugar: true,
+    isLowGlycemicIndex: true,
+    isAntiInflammatory: true,
+    noDairy: true,
+    noCommonAllergens: true,
   ),
 
   // ── Breakfast ────────────────────────────────────────────────
@@ -304,6 +377,9 @@ const List<Meal> allMeals = [
     price: 4.50,
     isHalal: true,
     isKosher: true,
+    isLowGlycemicIndex: true,
+    noDairy: true,
+    noCommonAllergens: true,
   ),
   Meal(
     id: '11',
@@ -319,6 +395,11 @@ const List<Meal> allMeals = [
     imagePath: 'assets/img/menu_card.png',
     price: 5.00,
     isHalal: true,
+    isLowSugar: true,
+    isLowGlycemicIndex: true,
+    isAntiInflammatory: true,
+    noDairy: false, // pancakes contain milk/butter
+    noCommonAllergens: false, // eggs + dairy
   ),
   Meal(
     id: '12',
@@ -335,6 +416,11 @@ const List<Meal> allMeals = [
     price: 4.50,
     isHalal: true,
     isKosher: true,
+    isLowSugar: true,
+    isLowGlycemicIndex: true,
+    isAntiInflammatory: true,
+    noDairy: true,
+    noCommonAllergens: true,
   ),
   Meal(
     id: '13',
@@ -351,6 +437,8 @@ const List<Meal> allMeals = [
     price: 4.50,
     isHalal: true,
     isKosher: true,
+    noDairy: true,
+    noCommonAllergens: true,
   ),
   Meal(
     id: '26',
@@ -367,6 +455,9 @@ const List<Meal> allMeals = [
     price: 4.50,
     isHalal: true,
     isKosher: true,
+    isAntiInflammatory: true,
+    noDairy: true,
+    noCommonAllergens: true,
   ),
   Meal(
     id: '27',
@@ -383,6 +474,9 @@ const List<Meal> allMeals = [
     price: 4.50,
     isHalal: true,
     isKosher: true,
+    isAntiInflammatory: true,
+    noDairy: true,
+    noCommonAllergens: true,
   ),
   Meal(
     id: '19',
@@ -399,8 +493,12 @@ const List<Meal> allMeals = [
     price: 5.50,
     isHalal: false,
     isKosher: true,
+    isLowSugar: true,
+    isLowGlycemicIndex: true,
+    isAntiInflammatory: true,
+    noDairy: true,
+    noCommonAllergens: true,
   ),
-
   Meal(
     id: '33',
     name: 'Bacon & Egg Mini Cups',
@@ -414,6 +512,10 @@ const List<Meal> allMeals = [
     reviews: 12,
     imagePath: 'assets/img/home_card.png',
     price: 5.50,
+    isLowSugar: true,
+    isLowGlycemicIndex: true,
+    noDairy: true,
+    noCommonAllergens: false, // eggs
   ),
 
   // ── Snacks ────────────────────────────────────────────────────
@@ -430,6 +532,11 @@ const List<Meal> allMeals = [
     reviews: 42,
     imagePath: 'assets/img/menu_card.png',
     price: 3.50,
+    isLowSugar: true,
+    isLowGlycemicIndex: true,
+    isAntiInflammatory: true,
+    noDairy: false, // yogurt
+    noCommonAllergens: false,
   ),
   Meal(
     id: '15',
@@ -446,6 +553,9 @@ const List<Meal> allMeals = [
     price: 4.00,
     isHalal: true,
     isKosher: true,
+    isLowSugar: true,
+    noDairy: true,
+    noCommonAllergens: true,
   ),
   Meal(
     id: '16',
@@ -462,6 +572,8 @@ const List<Meal> allMeals = [
     price: 3.50,
     isHalal: true,
     isKosher: true,
+    noDairy: true,
+    noCommonAllergens: true,
   ),
   Meal(
     id: '28',
@@ -478,6 +590,8 @@ const List<Meal> allMeals = [
     price: 3.50,
     isHalal: true,
     isKosher: true,
+    noDairy: true,
+    noCommonAllergens: true,
   ),
   Meal(
     id: '29',
@@ -494,6 +608,11 @@ const List<Meal> allMeals = [
     price: 3.00,
     isHalal: true,
     isKosher: true,
+    isLowSugar: true,
+    isLowGlycemicIndex: true,
+    isAntiInflammatory: true,
+    noDairy: true,
+    noCommonAllergens: true,
   ),
   Meal(
     id: '30',
@@ -510,6 +629,10 @@ const List<Meal> allMeals = [
     price: 4.00,
     isHalal: false,
     isKosher: true,
+    isLowSugar: true,
+    isLowGlycemicIndex: true,
+    noDairy: false, // cheese
+    noCommonAllergens: false,
   ),
   Meal(
     id: '34',
@@ -524,6 +647,10 @@ const List<Meal> allMeals = [
     reviews: 10,
     imagePath: 'assets/img/menu_card.png',
     price: 5.00,
+    isLowSugar: true,
+    isLowGlycemicIndex: true,
+    noDairy: false, // cheese
+    noCommonAllergens: false,
   ),
   Meal(
     id: '17',
@@ -540,5 +667,10 @@ const List<Meal> allMeals = [
     price: 4.00,
     isHalal: true,
     isKosher: true,
+    isLowSugar: true,
+    isLowGlycemicIndex: true,
+    isAntiInflammatory: true,
+    noDairy: true,
+    noCommonAllergens: true,
   ),
 ];

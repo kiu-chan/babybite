@@ -31,9 +31,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
   bool _isProcessing = false;
 
   static const _methods = [
-    {'icon': '💳', 'label': 'Card ending in •••• 4242', 'sub': 'Visa'},
-    {'icon': '📱', 'label': 'Apple Pay', 'sub': 'Touch ID'},
-    {'icon': '💵', 'label': 'Cash on delivery', 'sub': 'Pay when delivered'},
+    (icon: Icons.credit_card_rounded, label: 'Card ending in •••• 4242', sub: 'Visa'),
+    (icon: Icons.smartphone_rounded, label: 'Apple Pay', sub: 'Touch ID'),
+    (icon: Icons.payments_rounded, label: 'Cash on delivery', sub: 'Pay when delivered'),
   ];
 
   Future<void> _pay() async {
@@ -268,15 +268,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
                 child: Row(
                   children: [
-                    Text(m['icon']!,
-                        style: const TextStyle(fontSize: 22)),
+                    Icon(m.icon, color: _kPrimary, size: 26),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            m['label']!,
+                            m.label,
                             style: GoogleFonts.quicksand(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
@@ -284,7 +283,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             ),
                           ),
                           Text(
-                            m['sub']!,
+                            m.sub,
                             style: GoogleFonts.quicksand(
                                 fontSize: 12, color: _kGreyText),
                           ),
