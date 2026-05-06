@@ -11,6 +11,34 @@ class BabyInfo {
     required this.weight,
   });
 
+  int? get totalMonths {
+    if (birthDate == null) return null;
+    final now = DateTime.now();
+    int months = (now.year - birthDate!.year) * 12 + (now.month - birthDate!.month);
+    if (now.day < birthDate!.day) months--;
+    return months < 0 ? 0 : months;
+  }
+
+  String get ageAsMonths {
+    final m = totalMonths;
+    if (m == null) return '—';
+    if (m < 1) {
+      final days = DateTime.now().difference(birthDate!).inDays;
+      return '$days days old';
+    }
+    return '$m months old';
+  }
+
+  String get ageAsYears {
+    final m = totalMonths;
+    if (m == null) return '—';
+    if (m < 12) return ageAsMonths;
+    final years = m ~/ 12;
+    final rem = m % 12;
+    if (rem == 0) return '$years year${years > 1 ? 's' : ''} old';
+    return '$years year${years > 1 ? 's' : ''} $rem month${rem > 1 ? 's' : ''} old';
+  }
+
   /// Tính tuổi từ ngày sinh, trả về chuỗi hiển thị.
   String get age {
     if (birthDate == null) return '—';

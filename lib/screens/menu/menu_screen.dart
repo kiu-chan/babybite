@@ -23,14 +23,14 @@ class _MenuScreenState extends State<MenuScreen> {
   final _searchController = TextEditingController();
   String _searchText = '';
 
-  int _ageIndex = 3; // default: All
+  int _ageIndex = 4; // default: All
   int _categoryIndex = 0; // default: All
   bool _favoritesOnly = false;
   bool _halalOnly = false;
   bool _kosherOnly = false;
   bool _suitableOnly = false;
 
-  static const _ages = ['6m', '8m', '12m', 'All'];
+  static const _ages = ['6m', '12m', '18m', '24m', 'All'];
   static const _categories = ['All', 'Purees', 'Finger Foods', 'Breakfast', 'Snacks'];
 
   @override
@@ -64,7 +64,7 @@ class _MenuScreenState extends State<MenuScreen> {
 
   int get _activeFilterCount {
     int count = 0;
-    if (_ageIndex != 3) count++;
+    if (_ageIndex != 4) count++;
     if (_categoryIndex != 0) count++;
     if (_favoritesOnly) count++;
     if (_halalOnly) count++;
@@ -100,10 +100,12 @@ class _MenuScreenState extends State<MenuScreen> {
     switch (age) {
       case '6m':
         return 6;
-      case '8m':
-        return 8;
       case '12m':
         return 12;
+      case '18m':
+        return 18;
+      case '24m':
+        return 24;
       default:
         return 99;
     }
@@ -132,7 +134,7 @@ class _MenuScreenState extends State<MenuScreen> {
         onSuitableOnlyChanged: (value) =>
             setState(() => _suitableOnly = value),
         onReset: () => setState(() {
-          _ageIndex = 3;
+          _ageIndex = 4;
           _categoryIndex = 0;
           _favoritesOnly = false;
           _halalOnly = false;
@@ -140,37 +142,38 @@ class _MenuScreenState extends State<MenuScreen> {
           _suitableOnly = false;
         }),
       ),
-      body: Stack(
-        children: [
-          ValueListenableBuilder<Set<String>>(
-            valueListenable: FavoriteService.instance.favoriteMealIdsListenable,
-            builder: (_, _, _) {
-              final filteredMeals = _filtered;
-              return filteredMeals.isEmpty
-                  ? _buildEmpty()
-                  : ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(20, 76, 20, 24),
-                      itemCount: filteredMeals.length,
-                      separatorBuilder: (_, _) => const SizedBox(height: 16),
-                      itemBuilder: (_, i) => MealCardItem(meal: filteredMeals[i]),
-                    );
-            },
-          ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: MenuHeader(
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            MenuHeader(
               isSearching: _isSearching,
               searchController: _searchController,
               onSearchToggle: _toggleSearch,
               onSearchChanged: (v) => setState(() => _searchText = v),
-              onFilterTap: () =>
-                  _scaffoldKey.currentState?.openEndDrawer(),
+              onFilterTap: () => _scaffoldKey.currentState?.openEndDrawer(),
               activeFilterCount: _activeFilterCount,
             ),
-          ),
-        ],
+            Expanded(
+              child: ValueListenableBuilder<Set<String>>(
+                valueListenable: FavoriteService.instance.favoriteMealIdsListenable,
+                builder: (_, _, _) {
+                  final filteredMeals = _filtered;
+                  return filteredMeals.isEmpty
+                      ? _buildEmpty()
+                      : ListView.separated(
+                          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                          itemCount: filteredMeals.length,
+                          separatorBuilder: (_, _) =>
+                              const SizedBox(height: 16),
+                          itemBuilder: (_, i) =>
+                              MealCardItem(meal: filteredMeals[i]),
+                        );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

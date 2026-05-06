@@ -12,7 +12,7 @@ class SectionHead extends StatelessWidget {
     required this.onAgeChanged,
   });
 
-  static const _ageOptions = ['6m+', '8m+', '12m+', 'All'];
+  static const _ageOptions = ['6m+', '12m+', '18m+', '24m+', 'All'];
 
   void _showAgeFilter(BuildContext context) {
     showModalBottomSheet(

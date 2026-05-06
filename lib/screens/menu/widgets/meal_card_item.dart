@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/app_colors.dart';
 import '../../../services/favorite_service.dart';
 import '../../../services/health_condition_service.dart';
+import '../../../services/baby_age_service.dart';
 import '../../../models/health_condition.dart';
 import '../models/meal.dart';
 import '../meal_detail_screen.dart';
@@ -76,19 +77,23 @@ class MealCardItem extends StatelessWidget {
           Positioned(
             top: 12,
             right: 12,
-            child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: .9),
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Text(
-                meal.age,
-                style: GoogleFonts.quicksand(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.blueMid,
+            child: ValueListenableBuilder<bool>(
+              valueListenable:
+                  BabyAgeService.instance.showAgeInMonthsListenable,
+              builder: (_, inMonths, _) => Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: .9),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  meal.displayAge(inMonths: inMonths),
+                  style: GoogleFonts.quicksand(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.blueMid,
+                  ),
                 ),
               ),
             ),

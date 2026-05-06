@@ -6,8 +6,14 @@ import '../models/baby_info.dart';
 class BabyCard extends StatelessWidget {
   final BabyInfo baby;
   final VoidCallback onEditTap;
+  final String? ageDisplay;
 
-  const BabyCard({super.key, required this.baby, required this.onEditTap});
+  const BabyCard({
+    super.key,
+    required this.baby,
+    required this.onEditTap,
+    this.ageDisplay,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -68,11 +74,12 @@ class BabyCard extends StatelessWidget {
             const SizedBox(height: 14),
             const Divider(color: AppColors.cardBorder, height: 1),
             const SizedBox(height: 14),
-            _InfoRow(
-                icon: Icons.cake_rounded, label: 'Name', value: baby.name),
+            _InfoRow(icon: Icons.cake_rounded, label: 'Name', value: baby.name),
             const SizedBox(height: 10),
             _InfoRow(
-                icon: Icons.today_rounded, label: 'Age', value: baby.age),
+                icon: Icons.today_rounded,
+                label: 'Age',
+                value: ageDisplay ?? baby.age),
             const SizedBox(height: 10),
             _InfoRow(
               icon: Icons.warning_amber_rounded,

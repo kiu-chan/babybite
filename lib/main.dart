@@ -63,7 +63,10 @@ class _RootScreenState extends State<RootScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(bottom: false, child: _pages[_currentIndex]),
+      body: SafeArea(
+        bottom: false,
+        child: IndexedStack(index: _currentIndex, children: _pages),
+      ),
       bottomNavigationBar: BottomNav(
         currentIndex: _currentIndex,
         onTap: (i) => setState(() => _currentIndex = i),

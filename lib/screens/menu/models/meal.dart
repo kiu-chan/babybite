@@ -4,7 +4,7 @@ class Meal {
   final String id;
   final String name;
   final String emoji;
-  final String age; // '6m', '8m', '12m'
+  final String age; // '6m', '12m', '18m', '24m'
   final String category; // 'Purees', 'Finger Foods', 'Breakfast', 'Snacks'
   final int calories;
   final int cookTime;
@@ -44,14 +44,30 @@ class Meal {
     this.noCommonAllergens = false,
   });
 
+  String displayAge({bool inMonths = true}) {
+    if (inMonths) return age;
+    switch (age) {
+      case '12m':
+        return '1 yr';
+      case '18m':
+        return '1.5 yr';
+      case '24m':
+        return '2 yr';
+      default:
+        return age; // 6m stays as months since < 1 year
+    }
+  }
+
   int get ageInMonths {
     switch (age) {
       case '6m':
         return 6;
-      case '8m':
-        return 8;
       case '12m':
         return 12;
+      case '18m':
+        return 18;
+      case '24m':
+        return 24;
       default:
         return 0;
     }

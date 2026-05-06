@@ -7,6 +7,7 @@ import '../menu/data/meal_data.dart';
 import '../menu/models/meal.dart';
 import '../menu/meal_detail_screen.dart';
 import '../../services/favorite_service.dart';
+import '../../services/baby_age_service.dart';
 import 'widgets/hero_header.dart';
 import 'widgets/home_search_bar.dart';
 import 'widgets/section_head.dart';
@@ -101,10 +102,12 @@ class _HomeScreenState extends State<HomeScreen> {
     switch (age) {
       case '6m+':
         return 6;
-      case '8m+':
-        return 8;
       case '12m+':
         return 12;
+      case '18m+':
+        return 18;
+      case '24m+':
+        return 24;
       default:
         return 0;
     }
@@ -300,12 +303,16 @@ class _SearchSuggestionsDropdown extends StatelessWidget {
                     color: AppColors.blueDeep,
                   ),
                 ),
-                subtitle: Text(
-                  '${meal.age}+ • ${meal.category}',
-                  style: GoogleFonts.quicksand(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.blueMid,
+                subtitle: ValueListenableBuilder<bool>(
+                  valueListenable:
+                      BabyAgeService.instance.showAgeInMonthsListenable,
+                  builder: (_, inMonths, _) => Text(
+                    '${meal.displayAge(inMonths: inMonths)}+ • ${meal.category}',
+                    style: GoogleFonts.quicksand(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.blueMid,
+                    ),
                   ),
                 ),
                 trailing: Row(

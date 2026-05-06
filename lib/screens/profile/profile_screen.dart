@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../services/order_service.dart';
 import '../../services/favorite_service.dart';
 import '../../services/health_condition_service.dart';
+import '../../services/baby_age_service.dart';
 import '../../models/health_condition.dart';
 import 'models/user_profile.dart';
 import 'models/baby_info.dart';
@@ -37,6 +38,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
     weight: '8.2 kg',
   );
 
+  bool _showAgeInMonths = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Restore saved baby info so state survives tab switches
+    final saved = BabyAgeService.instance.babyInfo;
+    if (saved != null) {
+      _baby = saved;
+    } else {
+      BabyAgeService.instance.update(_baby);
+    }
+    _showAgeInMonths = BabyAgeService.instance.showAgeInMonths;
+  }
+
   Future<void> _openEditProfile() async {
     final result = await Navigator.of(context).push<UserProfile>(
       MaterialPageRoute(
@@ -52,7 +68,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         builder: (_) => EditBabyScreen(baby: _baby),
       ),
     );
-    if (result != null) setState(() => _baby = result);
+    if (result != null) {
+      setState(() => _baby = result);
+      BabyAgeService.instance.update(result);
+    }
   }
 
   @override
@@ -65,7 +84,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 20),
           const StatsRow(),
           const SizedBox(height: 20),
-          BabyCard(baby: _baby, onEditTap: _openEditBaby),
+          BabyCard(
+            baby: _baby,
+            onEditTap: _openEditBaby,
+            ageDisplay: _showAgeInMonths
+                ? _baby.ageAsMonths
+                : _baby.ageAsYears,
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
+            child: _AgeFormatToggleRow(
+              showInMonths: _showAgeInMonths,
+              onToggle: (v) {
+                setState(() => _showAgeInMonths = v);
+                BabyAgeService.instance.showAgeInMonthsListenable.value = v;
+              },
+            ),
+          ),
           const SizedBox(height: 20),
           const _HealthConditionsCard(),
           const SizedBox(height: 20),
@@ -465,6 +500,101 @@ class _FavoriteMealsButton extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────
+// AGE FORMAT TOGGLE ROW (standalone, below BabyCard)
+// ─────────────────────────────────────────────────────────
+class _AgeFormatToggleRow extends StatelessWidget {
+  final bool showInMonths;
+  final ValueChanged<bool> onToggle;
+
+  const _AgeFormatToggleRow({
+    required this.showInMonths,
+    required this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Text(
+          'Age display',
+          style: GoogleFonts.quicksand(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF9EBAD4),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: const Color(0xFFD6E6F7)),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF7EB8E8).withValues(alpha: .10),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _ToggleOption(
+                label: 'months',
+                active: showInMonths,
+                onTap: () => onToggle(true),
+              ),
+              _ToggleOption(
+                label: 'years',
+                active: !showInMonths,
+                onTap: () => onToggle(false),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ToggleOption extends StatelessWidget {
+  final String label;
+  final bool active;
+  final VoidCallback onTap;
+
+  const _ToggleOption({
+    required this.label,
+    required this.active,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: active ? const Color(0xFF5AA3E8) : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.quicksand(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: active ? Colors.white : const Color(0xFF9EBAD4),
+          ),
+        ),
+      ),
     );
   }
 }

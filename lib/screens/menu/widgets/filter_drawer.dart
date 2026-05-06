@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/app_colors.dart';
 import '../../../models/health_condition.dart';
 import '../../../services/health_condition_service.dart';
+import '../../../services/baby_age_service.dart';
 
 class FilterDrawer extends StatelessWidget {
   final List<String> ages;
@@ -67,6 +68,7 @@ class FilterDrawer extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    _buildBabyQuickFilter(),
                     _buildSection(
                       label: 'Age Group',
                       icon: Icons.wb_sunny_outlined,
@@ -183,6 +185,94 @@ class FilterDrawer extends StatelessWidget {
         ),
         const SizedBox(height: 14),
         child,
+      ],
+    );
+  }
+
+  Widget _buildBabyQuickFilter() {
+    final svc = BabyAgeService.instance;
+    final babyName = svc.babyName;
+    final ageGroup = svc.suggestedAgeGroup;
+    if (babyName == null || ageGroup == null) return const SizedBox.shrink();
+
+    final babyIdx = ages.indexOf(ageGroup);
+    final isActive = selectedAgeIndex == babyIdx;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.child_care_rounded,
+                size: 16, color: AppColors.blueAccent),
+            const SizedBox(width: 8),
+            Text(
+              'Baby\'s Age',
+              style: GoogleFonts.fredoka(
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+                color: AppColors.blueDeep,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        GestureDetector(
+          onTap: () {
+            if (isActive) {
+              onAgeChanged(ages.indexOf('All'));
+            } else {
+              onAgeChanged(babyIdx);
+            }
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            width: double.infinity,
+            padding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+            decoration: BoxDecoration(
+              color: isActive
+                  ? AppColors.blueAccent.withValues(alpha: .10)
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: isActive
+                    ? AppColors.blueAccent.withValues(alpha: .5)
+                    : const Color(0xFFD6E6F7),
+                width: isActive ? 1.5 : 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.blueSoft.withValues(alpha: .12),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Text(
+                  '$babyName · $ageGroup',
+                  style: GoogleFonts.quicksand(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: isActive
+                        ? AppColors.blueDeep
+                        : AppColors.blueMid,
+                  ),
+                ),
+                const Spacer(),
+                if (isActive)
+                  const Icon(Icons.check_circle_rounded,
+                      size: 16, color: AppColors.blueAccent)
+                else
+                  const Icon(Icons.radio_button_unchecked_rounded,
+                      size: 16, color: AppColors.placeholder),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 28),
       ],
     );
   }
