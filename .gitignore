@@ -1,3 +1,15 @@
+# Environment
+.env
+
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+scripts/generate_meal_images.py
+
 # Miscellaneous
 *.class
 *.log
