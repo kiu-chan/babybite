@@ -197,7 +197,9 @@ class _EditBabyScreenState extends State<EditBabyScreen> {
                     itemBuilder: (_, index) {
                       final value = _weightSuggestions[index];
                       final isActive = value == _weightCtrl.text.trim();
-                      return ListTile(
+                      return Material(
+                        color: Colors.transparent,
+                        child: ListTile(
                         contentPadding:
                             const EdgeInsets.symmetric(horizontal: 6),
                         title: Text(
@@ -217,6 +219,7 @@ class _EditBabyScreenState extends State<EditBabyScreen> {
                               )
                             : null,
                         onTap: () => Navigator.of(context).pop(value),
+                      ),
                       );
                     },
                   ),

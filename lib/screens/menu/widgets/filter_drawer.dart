@@ -531,31 +531,34 @@ class FilterDrawer extends StatelessWidget {
           ),
         ],
       ),
-      child: SwitchListTile.adaptive(
-        value: value,
-        onChanged: onChanged,
-        activeThumbColor: activeColor,
-        activeTrackColor: activeColor.withValues(alpha: .3),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-        title: Text(
-          label,
-          style: GoogleFonts.quicksand(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: AppColors.blueDeep,
+      child: Material(
+        color: Colors.transparent,
+        child: SwitchListTile.adaptive(
+          value: value,
+          onChanged: onChanged,
+          activeThumbColor: activeColor,
+          activeTrackColor: activeColor.withValues(alpha: .3),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+          title: Text(
+            label,
+            style: GoogleFonts.quicksand(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: AppColors.blueDeep,
+            ),
           ),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: GoogleFonts.quicksand(
-            fontSize: 11,
-            color: AppColors.placeholder,
+          subtitle: Text(
+            subtitle,
+            style: GoogleFonts.quicksand(
+              fontSize: 11,
+              color: AppColors.placeholder,
+            ),
           ),
-        ),
-        secondary: Icon(
-          icon,
-          color: value ? activeColor : AppColors.blueMid,
-          size: 18,
+          secondary: Icon(
+            icon,
+            color: value ? activeColor : AppColors.blueMid,
+            size: 18,
+          ),
         ),
       ),
     );
@@ -575,24 +578,27 @@ class FilterDrawer extends StatelessWidget {
           ),
         ],
       ),
-      child: SwitchListTile.adaptive(
-        value: favoritesOnly,
-        onChanged: onFavoritesOnlyChanged,
-        activeThumbColor: const Color(0xFFE86868),
-        activeTrackColor: const Color(0xFFE86868).withValues(alpha: .3),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-        title: Text(
-          'Only favorites',
-          style: GoogleFonts.quicksand(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: AppColors.blueDeep,
+      child: Material(
+        color: Colors.transparent,
+        child: SwitchListTile.adaptive(
+          value: favoritesOnly,
+          onChanged: onFavoritesOnlyChanged,
+          activeThumbColor: const Color(0xFFE86868),
+          activeTrackColor: const Color(0xFFE86868).withValues(alpha: .3),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+          title: Text(
+            'Only favorites',
+            style: GoogleFonts.quicksand(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: AppColors.blueDeep,
+            ),
           ),
-        ),
-        secondary: Icon(
-          favoritesOnly ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-          color: favoritesOnly ? const Color(0xFFE86868) : AppColors.blueMid,
-          size: 18,
+          secondary: Icon(
+            favoritesOnly ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+            color: favoritesOnly ? const Color(0xFFE86868) : AppColors.blueMid,
+            size: 18,
+          ),
         ),
       ),
     );

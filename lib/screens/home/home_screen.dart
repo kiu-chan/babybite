@@ -281,7 +281,9 @@ class _SearchSuggestionsDropdown extends StatelessWidget {
             valueListenable: FavoriteService.instance.favoriteMealIdsListenable,
             builder: (_, favoriteIds, _) {
               final isFavorite = favoriteIds.contains(meal.id);
-              return ListTile(
+              return Material(
+                color: Colors.transparent,
+                child: ListTile(
                 dense: true,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                 leading: ClipRRect(
@@ -335,6 +337,7 @@ class _SearchSuggestionsDropdown extends StatelessWidget {
                   ],
                 ),
                 onTap: () => onTapMeal(meal),
+              ),
               );
             },
           );
